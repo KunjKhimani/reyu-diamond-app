@@ -3,7 +3,6 @@ import type { IUser } from "../models/User.model.js";
 import { generateOTP } from "../utils/otp.utils.js";
 import sendEmail from "../services/email.service.js";
 import { otpTemplate } from "../utils/email.template.js";
-import e from "express";
 
 export interface RegisterUserInput {
   username: string;
