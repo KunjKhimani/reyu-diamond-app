@@ -57,27 +57,38 @@ export const getAllRequirements = async (req: Request, res: Response) => {
 
 export const updateRequirements = async (req: Request, res: Response) => {
   try{
-      const requirementId = req.params.id as string;
-      const updateData = req.body;
+    const userId = (req as any).user?.id as string | undefined;
 
-      if (!requirementId) {
-        return sendResponse({
-          res,
-          statusCode: 400,
-          success: false,
-          message: "Requirement ID is required",
-        });
-      }
-
-      const updatedRequirement = await updateDataService(requirementId, updateData);
-
+    if (!userId) {
       return sendResponse({
-          res,
-          statusCode: 200,
-          success: true,
-          data: updatedRequirement,
-          message: "Requirement updated successfully",
+        res,
+        statusCode: 400,
+        success: false,
+        message: "User ID is required",
       });
+    }
+
+    const requirementId = req.params.id as string;
+    const updateData = req.body;
+
+    if (!requirementId) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Requirement ID is required",
+      });
+    }
+
+    const updatedRequirement = await updateDataService(userId, requirementId, updateData);
+    
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      data: updatedRequirement,
+      message: "Requirement updated successfully",
+    });
   } catch (error) {
     return sendResponse({
         res,
