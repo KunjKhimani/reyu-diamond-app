@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import sendResponse from "../utils/api.response.js";
-import { placeBid, getAllBidsByRequirement, getSellerService } from "../services/bid.service.js";
+import { placeBid, getAllBidsByRequirement, getSellerService, updateBidStatusService } from "../services/bid.service.js";
 import User from "../models/User.model.js";
 
 export const createBid = async (req: Request, res: Response) => {
@@ -205,5 +205,111 @@ export const getSellerBid = async (req: Request, res: Response) => {
       message: "Failed to fetch seller bid",
       errors: error.message 
     });
+  }
+}
+
+export const updateBidStatus = async (req: Request, res: Response) => {
+  try {
+    const buyerId = (req as any).user?.id as string | undefined;
+
+    if (!buyerId) {
+      return sendResponse({
+        res,
+        statusCode: 401,
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const bidId = req.params.bidId as string;
+    const { status } = req.body;
+
+    if (!bidId) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Bid ID is required",
+      });
+    }
+
+    if (!status || !["ACCEPTED", "REJECTED", "EXPIRED"].includes(status)) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Status is required and must be ACCEPTED, REJECTED, or EXPIRED",
+      });
+    }
+
+    const updatedBid = await updateBidStatusService(buyerId, bidId, status);
+
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      message: `Bid ${status.toLowerCase()} successfully`,
+      data: updatedBid,
+    });
+  } catch (error: any) {
+    switch (error.message) {
+      case "BID_NOT_FOUND":
+        return sendResponse({
+          res,
+          statusCode: 404,
+          success: false,
+          message: "Bid not found",
+        });
+
+      case "REQUIREMENT_NOT_FOUND":
+        return sendResponse({
+          res,
+          statusCode: 404,
+          success: false,
+          message: "Requirement not found",
+        });
+
+      case "NOT_REQUIREMENT_OWNER":
+        return sendResponse({
+          res,
+          statusCode: 403,
+          success: false,
+          message: "You are not authorized to update this bid. Only the requirement owner can accept or reject bids.",
+        });
+
+      case "BID_NOT_SUBMITTED":
+        return sendResponse({
+          res,
+          statusCode: 400,
+          success: false,
+          message: "Bid is not in SUBMITTED status and cannot be updated",
+        });
+
+      case "REQUIREMENT_NOT_ACTIVE":
+        return sendResponse({
+          res,
+          statusCode: 400,
+          success: false,
+          message: "Requirement is not active. Cannot accept bids for closed or expired requirements.",
+        });
+
+      case "BID_ALREADY_ACCEPTED":
+        return sendResponse({
+          res,
+          statusCode: 400,
+          success: false,
+          message: "A bid has already been accepted for this requirement",
+        });
+
+      default:
+        console.error("Error in updateBidStatus:", error);
+        return sendResponse({
+          res,
+          statusCode: 500,
+          success: false,
+          message: "Failed to update bid status",
+          errors: error?.message ?? "Something went wrong",
+        });
+    }
   }
 }
