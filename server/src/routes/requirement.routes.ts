@@ -5,7 +5,7 @@ import { createRequirement, getAllRequirements, updateRequirements, getRequireme
 const router = Router();
 
 router.post("/", protect, createRequirement);
-router.get("/", protect, getAllRequirements);
+router.get("/", getAllRequirements);
 router.put("/:id", protect, updateRequirements);
 router.get("/:id", protect, getRequirementById);
 router.delete("/:id", protect, deleteRequirement);
