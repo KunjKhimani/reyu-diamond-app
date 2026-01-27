@@ -5,7 +5,6 @@ import { notifyAdminsForKyc } from "../services/notification.service.js";
 import {
   upsertKycForUser,
   sendMailToAllAdmins,
-  findKycByUserId,
 } from "../services/kyc.service.js";
 
 export const submitKyc = async (req: Request, res: Response) => {
@@ -51,6 +50,7 @@ export const submitKyc = async (req: Request, res: Response) => {
       });
     }
 
+    console.log()
     if (!aadhaarFile || !panFile) {
       return sendResponse({
         res,

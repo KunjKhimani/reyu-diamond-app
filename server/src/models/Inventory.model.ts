@@ -11,7 +11,8 @@ export interface IInventory extends Document {
   clarity: string;
   lab: string;
   location: string;
-  price: number;
+  basePrice: number;
+  currentBiddingPrice: number;
   status: InventoryStatus;
   locked: boolean;
 }
@@ -39,10 +40,12 @@ const inventorySchema = new mongoose.Schema<IInventory>(
     lab: String,
     location: String,
 
-    price: {
+    basePrice: {
       type: Number,
       required: true,
     },
+
+    currentBiddingPrice: Number,
 
     status: {
       type: String,
@@ -56,6 +59,20 @@ const inventorySchema = new mongoose.Schema<IInventory>(
     },
   },
   { timestamps: true }
+);
+
+inventorySchema.index(
+  {
+    sellerId: 1,
+    shape: 1,
+    carat: 1,
+    color: 1,
+    clarity: 1,
+    lab: 1,
+    location: 1,
+    basePrice: 1,
+  },
+  { unique: true }
 );
 
 const Inventory: Model<IInventory> =

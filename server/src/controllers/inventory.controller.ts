@@ -125,7 +125,7 @@ export const updateInventory = async (req: Request, res: Response) => {
                 res,
                 statusCode: 404,
                 success: false,
-                message: "Inventory not found, unauthorized, or locked",
+                message: "Inventory not found or unauthorized",
             });
         }
 
