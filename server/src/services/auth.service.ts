@@ -39,7 +39,7 @@ export const registerUser = async (
   const otp = generateOTP();
 
     user.otp = otp;
-    user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     user.lastOtpSent = new Date(Date.now());
 
   await user.save();
@@ -122,4 +122,31 @@ export const upadteUserById = async (
     { new: true }
   ).select("-password -otp -otpAttempts -fcmToken -__v -createdAt -updatedAt -lastOtpSent");
   return user;
+};
+
+export const resendOtpService = async (email: string): Promise<void> => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.isVerified) {
+    throw new Error("User is already verified");
+  }
+
+  const otp = generateOTP();
+
+  user.otp = otp;
+  user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  user.lastOtpSent = new Date(Date.now());
+  user.otpAttempts = 0; // Reset attempts on resend
+
+  await user.save();
+
+  await sendEmail({
+    to: user.email,
+    subject: "Verify your email",
+    html: otpTemplate(Number(otp)),
+  });
 };

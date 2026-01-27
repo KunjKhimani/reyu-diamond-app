@@ -7,22 +7,13 @@ export type BidStatus =
   | "EXPIRED";
 
 export interface IBid extends Document {
-  requirementId: mongoose.Types.ObjectId;
-  sellerId: mongoose.Types.ObjectId;
+  inventoryId: mongoose.Types.ObjectId;
+  buyerId: mongoose.Types.ObjectId;
 
-  // Offered diamond (can be inventory-linked or free offer)
-  inventoryId?: mongoose.Types.ObjectId;
-
-  offeredShape: string;
-  offeredCarat: number;
-  offeredColor: string;
-  offeredClarity: string;
-  offeredLab: string;
-
-  price: number;
-  deliveryDays: number;
+  bidAmount: number;
 
   status: BidStatus;
+  isHighestBid: boolean;
 
   createdAt: Date;
   updatedAt: Date;
@@ -30,65 +21,56 @@ export interface IBid extends Document {
 
 const bidSchema = new mongoose.Schema<IBid>(
   {
-    requirementId: {
+    inventoryId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Requirement",
+      ref: "Inventory",
       required: true,
       index: true,
     },
 
-    sellerId: {
+    buyerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
 
-    inventoryId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Inventory",
-      default: null,
-    },
-
-    // never rely only on inventory
-    offeredShape: { type: String, required: true },
-    offeredCarat: { type: Number, required: true },
-    offeredColor: { type: String, required: true },
-    offeredClarity: { type: String, required: true },
-    offeredLab: { type: String, required: true },
-
-    price: {
+    bidAmount: {
       type: Number,
       required: true,
       min: 1,
-    },
-
-    deliveryDays: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 90,
+      index: true,
     },
 
     status: {
       type: String,
       enum: ["SUBMITTED", "ACCEPTED", "REJECTED", "EXPIRED"],
       default: "SUBMITTED",
+      index: true,
+    },
+
+    // Ensures only one highest bid per inventory
+    isHighestBid: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
 );
 
-// One seller → one active bid per requirement
+// 🔒 Only ONE highest bid allowed per inventory
 bidSchema.index(
-  {
-    requirementId: 1,
-    sellerId: 1,
-  },
+  { inventoryId: 1, isHighestBid: 1 },
   {
     unique: true,
-    partialFilterExpression: { status: "SUBMITTED" },
+    partialFilterExpression: { isHighestBid: true },
   }
+);
+
+// 🚫 Prevent same buyer placing same bid again
+bidSchema.index(
+  { inventoryId: 1, buyerId: 1, bidAmount: 1 },
+  { unique: true }
 );
 
 const Bid: Model<IBid> = mongoose.model<IBid>("Bid", bidSchema);

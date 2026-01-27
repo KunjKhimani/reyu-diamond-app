@@ -59,7 +59,7 @@ export const updateInventoryService = async (
 
         throw {
             statusCode: 403,
-            message: "You are not authorized to delete this inventory or it is locked",
+            message: "You are not authorized to delete this inventory",
         };
     }
 
@@ -100,7 +100,7 @@ export const deleteInventoryService = async (
 
         throw {
             statusCode: 403,
-            message: "You are not authorized to delete this inventory or it is locked",
+            message: "You are not authorized to delete this inventory",
         };
     }
 

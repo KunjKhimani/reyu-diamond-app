@@ -1,190 +1,268 @@
-import Bid, { type IBid } from "../models/Bid.model.js";
-import Requirement from "../models/requirement.model.js";
 import mongoose from "mongoose";
+import Bid from "../models/Bid.model.js";
 import Inventory from "../models/Inventory.model.js";
 
-export const placeBid = async (requirementId:string, sellerId: string, data: any): Promise<IBid> => {
-  // 1. Validate requirement
-  const requirement = await Requirement.findById(requirementId);
-
-  if (!requirement) {
-    throw new Error("REQUIREMENT_NOT_FOUND");
-  }
-
-  // 2. Requirement must be active
-  if (requirement.status !== "active") {
-    throw new Error("REQUIREMENT_NOT_ACTIVE");
-  }
-
-  // 3. Buyer cannot bid on own requirement
-  if (requirement.buyerId.toString() === sellerId) {
-    throw new Error("CANNOT_BID_OWN_REQUIREMENT");
-  }
-
-  // 4. Create bid (unique SUBMITTED enforced by index)
-  try {
-    const bidData: any = {
-      requirementId,
-      sellerId,
-      ...data
-    };  
-
-    if(data.inventoryId) {
-      // Validate that the specific inventory belongs to the seller
-      const inventory = await Inventory.findOne({ 
-        _id: data.inventoryId, 
-        sellerId 
-      });
-      
-      if (!inventory) {
-        throw new Error("NOT_OWNER_OF_INVENTORY");
-      }
-      
-      // Additional check: ensure inventory is not locked
-      if (inventory.locked) {
-        throw new Error("INVENTORY_LOCKED");
-      }
-      
-      bidData.inventoryId = new mongoose.Types.ObjectId(data.inventoryId);
-    }
-
-    const bid = await Bid.create(bidData);
-
-    return bid;
-  } catch (error: any) {
-    // Duplicate active bid
-    if (error.code === 11000) {
-      throw new Error("ACTIVE_BID_EXISTS");
-    }
-    throw error;
-  }
+interface CreateBidInput {
+  inventoryId: string;
+  buyerId: string;
+  bidAmount: number;
 }
 
-export const getAllBidsByRequirement = async (
-  requirementId: string,
+export const createBidService = async ({
+  inventoryId,
+  buyerId,
+  bidAmount,
+}: CreateBidInput) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // 1. Fetch inventory
+  const inventory = await Inventory.findById(inventoryId);
+
+  if (!inventory) {
+    throw new Error("Inventory not found");
+  }
+
+  // 2. Check if buyer is the seller (not allowed)
+  if (inventory.sellerId.toString() === buyerId) {
+    throw new Error("You cannot bid on your own inventory");
+  }
+
+  if (inventory.status === "SOLD" || inventory.locked) {
+    throw new Error("Inventory is not available for bidding");
+  }
+
+  const currentPrice =
+    inventory.currentBiddingPrice || inventory.basePrice;
+
+  if (bidAmount <= currentPrice) {
+    throw new Error(
+      `Bid must be higher than current price (${currentPrice})`
+    );
+  }
+
+  // 3. Check if user already has the highest bid (prevent self-outbidding)
+  const currentHighestBid = await Bid.findOne({
+    inventoryId,
+    isHighestBid: true,
+  });
+
+  if (currentHighestBid && currentHighestBid.buyerId.toString() === buyerId) {
+    throw new Error("You already have the highest bid. Wait for someone else to outbid you before placing a new bid.");
+  }
+
+  if (isProduction) {
+    // Use transactions in production (requires replica set)
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+
+      // 2. Remove previous highest bid
+      await Bid.updateMany(
+        {
+          inventoryId,
+          isHighestBid: true,
+        },
+        {
+          $set: { isHighestBid: false },
+        },
+        { session }
+      );
+
+      // 3. Create new bid
+      const bid = await Bid.create(
+        [
+          {
+            inventoryId,
+            buyerId,
+            bidAmount,
+            status: "SUBMITTED",
+            isHighestBid: true,
+          },
+        ],
+        { session }
+      );
+
+      // 4. Update inventory price
+      inventory.currentBiddingPrice = bidAmount;
+      await inventory.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return bid[0];
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  } else {
+    // Direct CRUD operations in development
+    // 2. Remove previous highest bid
+    await Bid.updateMany(
+      {
+        inventoryId,
+        isHighestBid: true,
+      },
+      {
+        $set: { isHighestBid: false },
+      }
+    );
+
+    // 3. Create new bid
+    const bid = await Bid.create({
+      inventoryId,
+      buyerId,
+      bidAmount,
+      status: "SUBMITTED",
+      isHighestBid: true,
+    });
+
+    // 4. Update inventory price
+    inventory.currentBiddingPrice = bidAmount;
+    await inventory.save();
+
+    return bid;
+  }
+};
+
+export const getAllBidsByInventoryService = async (
+  inventoryId: string,
   userId: string,
-  userRole?: "admin" | "user"
-): Promise<IBid[] | null> => {
-  const requirement = await Requirement.findById(requirementId);
-  if (!requirement) {
-    throw new Error("Requirement not found");
+  userRole: "admin" | "user"
+): Promise<any[]> => {
+  // 1. Check if inventory exists
+  const inventory = await Inventory.findById(inventoryId);
+  if (!inventory) {
+    throw new Error("Inventory not found");
   }
 
-  const isOwner = userId === requirement.buyerId.toString();
+  // 2. Check authorization: Admin or inventory owner (seller)
   const isAdmin = userRole === "admin";
+  const isOwner = inventory.sellerId.toString() === userId;
 
-  if (!isOwner && !isAdmin) {
-    throw new Error("You are not the owner of this requirement, so you cannot see all bids.");
+  if (!isAdmin && !isOwner) {
+    throw new Error("You are not authorized to view bids for this inventory");
   }
 
-  const bids = await Bid.find({ requirementId });
+  // 3. Fetch all bids for this inventory
+  const bids = await Bid.find({ inventoryId })
+    .populate("buyerId", "username email")
+    .sort({ createdAt: -1 }); // Latest bids first
 
   return bids;
 };
 
-export const getSellerService = async (
-  requirementId: string,
-  sellerId: string
-) => {
-  // First validate that the requirement exists
-  const requirement = await Requirement.findById(requirementId);
-  if (!requirement) {
-    throw new Error("Requirement not found");
+export const getMyBidByInventoryService = async (
+  inventoryId: string,
+  buyerId: string
+): Promise<any | null> => {
+  // 1. Check if inventory exists
+  const inventory = await Inventory.findById(inventoryId);
+  if (!inventory) {
+    throw new Error("Inventory not found");
   }
 
-  const sellerBid = await Bid.findOne({
-    requirementId,
-    sellerId
-  }).populate("requirementId");
+  // 2. Find the current user's bid for this inventory
+  const bid = await Bid.findOne({
+    inventoryId,
+    buyerId,
+  })
+    .populate("buyerId", "username email")
+    .populate("inventoryId", "barcode shape carat color clarity lab location basePrice currentBiddingPrice status");
 
-  if (!sellerBid) {
+  // Return null if no bid found (not an error, just no bid placed yet)
+  return bid;
+};
+
+export const updateBidStatusService = async (
+  bidId: string,
+  status: "ACCEPTED" | "REJECTED" | "EXPIRED",
+  userId: string,
+  userRole: "admin" | "user"
+): Promise<any> => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // 1. Find the bid
+  const bid = await Bid.findById(bidId);
+  if (!bid) {
     throw new Error("Bid not found");
   }
 
-  return sellerBid;
-}
-
-export const updateBidStatusService = async (
-  buyerId: string,
-  bidId: string,
-  status: "ACCEPTED" | "REJECTED" | "EXPIRED"
-): Promise<IBid> => {
-  
-  const bid = await Bid.findOne({ _id: bidId, status: "SUBMITTED" });
-  if (!bid) throw new Error("BID_NOT_FOUND");
-
-  const requirement = await Requirement.findById(bid.requirementId);
-  if (!requirement) throw new Error("REQUIREMENT_NOT_FOUND");
-
-  if (requirement.buyerId.toString() !== buyerId) {
-    throw new Error("NOT_REQUIREMENT_OWNER");
+  // 2. Validate bid is in SUBMITTED status
+  if (bid.status !== "SUBMITTED") {
+    throw new Error("Bid is not in SUBMITTED status and cannot be updated");
   }
 
-  if (status === "ACCEPTED" && requirement.status !== "active") {
-    throw new Error("REQUIREMENT_NOT_ACTIVE");
+  // 3. Get inventory and check authorization
+  const inventory = await Inventory.findById(bid.inventoryId);
+  if (!inventory) {
+    throw new Error("Inventory not found");
   }
 
+  // 4. Check authorization: Admin or inventory owner (seller)
+  const isAdmin = userRole === "admin";
+  const isOwner = inventory.sellerId.toString() === userId;
+
+  if (!isAdmin && !isOwner) {
+    throw new Error("You are not authorized to update this bid");
+  }
+
+  // 5. If accepting, check if another bid is already accepted
   if (status === "ACCEPTED") {
     const existingAcceptedBid = await Bid.findOne({
-      requirementId: bid.requirementId,
+      inventoryId: bid.inventoryId,
       status: "ACCEPTED",
     });
-    if (existingAcceptedBid) throw new Error("BID_ALREADY_ACCEPTED");
 
-    const isProduction = process.env.NODE_ENV === "production";
-
-    if (isProduction) {
-      // Use transactions in production (requires replica set)
-      const session = await mongoose.startSession();
-      session.startTransaction();
-      try {
-        const updatedBid = await Bid.findByIdAndUpdate(
-          bidId,
-          { status: "ACCEPTED" },
-          { new: true, session }
-        );
-        await Requirement.findByIdAndUpdate(
-          bid.requirementId,
-          { status: "closed" },
-          { session }
-        );
-        await Bid.updateMany(
-          { requirementId: bid.requirementId, status: "SUBMITTED", _id: { $ne: bidId } },
-          { status: "REJECTED" },
-          { session }
-        );
-        await session.commitTransaction();
-        session.endSession();
-        return updatedBid!;
-      } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        throw error;
-      }
-    } else {
-      // Simple CRUD operations in development
-      const updatedBid = await Bid.findByIdAndUpdate(
-        bidId,
-        { status: "ACCEPTED" },
-        { new: true }
-      );
-      await Requirement.findByIdAndUpdate(
-        bid.requirementId,
-        { status: "closed" }
-      );
-      await Bid.updateMany(
-        { requirementId: bid.requirementId, status: "SUBMITTED", _id: { $ne: bidId } },
-        { status: "REJECTED" }
-      );
-      return updatedBid!;
+    if (existingAcceptedBid && existingAcceptedBid._id.toString() !== bidId) {
+      throw new Error("Another bid has already been accepted for this inventory");
     }
   }
 
-  const updatedBid = await Bid.findByIdAndUpdate(
-    bidId,
-    { status },
-    { new: true }
-  );
-  if (!updatedBid) throw new Error("BID_NOT_FOUND");
-  return updatedBid;
-}
+  if (isProduction) {
+    // Use transactions in production
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+
+      // Update bid status
+      const updatedBid = await Bid.findByIdAndUpdate(
+        bidId,
+        { status },
+        { new: true, session }
+      );
+
+      // If bid is ACCEPTED, update inventory status to ON_MEMO
+      if (status === "ACCEPTED") {
+        inventory.status = "ON_MEMO";
+        inventory.locked = true;
+        await inventory.save({ session });
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return updatedBid;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  } else {
+    // Direct CRUD operations in development
+    const updatedBid = await Bid.findByIdAndUpdate(
+      bidId,
+      { status },
+      { new: true }
+    );
+
+    // If bid is ACCEPTED, update inventory status to ON_MEMO
+    if (status === "ACCEPTED") {
+      inventory.status = "ON_MEMO";
+      inventory.locked = true;
+      await inventory.save();
+    }
+
+    return updatedBid;
+  }
+};

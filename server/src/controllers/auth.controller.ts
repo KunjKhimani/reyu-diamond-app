@@ -5,7 +5,8 @@ import {
   verifyUserOtp,
   loginUser,
   getUserById, 
-  upadteUserById
+  upadteUserById,
+  resendOtpService
 } from "../services/auth.service.js";
 import sendResponse from "../utils/api.response.js";
 
@@ -119,15 +120,35 @@ export const login = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
+    
+    if (err.message === "Please verify your email first") {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Please verify your email first",
+        errors: "Please verify your email before logging in. Check your email for the OTP or request a new one.",
+      });
+    }
+
+    if (err.message === "Invalid credentials") {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Login Failed",
+        errors: "Invalid email or password",
+      });
+    }
     
     return sendResponse({
       res,
       statusCode: 400,
       success: false,
       message: "Login Failed",
-      errors: "Invalid email or password",
+      errors: err?.message ?? "Invalid email or password",
     });
   }
 };
@@ -224,4 +245,54 @@ export const upadteUserProfile = async (req: Request, res: Response) => {
       errors: err?.message ?? "Something went wrong",
     });
   }
-}
+};
+
+export const resendOtp = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    await resendOtpService(email);
+
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      message: "OTP has been resent to your email address",
+    });
+  } catch (err: any) {
+    if (err.message === "User not found") {
+      return sendResponse({
+        res,
+        statusCode: 404,
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (err.message === "User is already verified") {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "User is already verified",
+      });
+    }
+
+    return sendResponse({
+      res,
+      statusCode: 500,
+      success: false,
+      message: "Failed to resend OTP",
+      errors: err?.message ?? "Something went wrong",
+    });
+  }
+};
