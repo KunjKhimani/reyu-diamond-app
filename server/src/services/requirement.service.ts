@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import type { IRequirement } from "../models/requirement.model.js";
 import Requirement from "../models/requirement.model.js";
 
-/** Create or update the requirement for the user (one per user). First call creates, subsequent calls update. */
 export const createOrUpdateRequirementService = async (
   userId: string,
   requirementData: Partial<Pick<IRequirement, "shape" | "carat" | "color" | "clarity" | "lab" | "location" | "budget">>
@@ -21,7 +20,6 @@ export const getAllRequirementsService = async (): Promise<IRequirement[]> => {
 }
 
 export const updateRequirementByIdService = async (
-  userId: string,
   requirementId: string,
   updateData: Partial<Pick<IRequirement, "shape" | "carat" | "color" | "clarity" | "lab" | "location" | "budget">>
 ): Promise<IRequirement> => {
@@ -30,7 +28,7 @@ export const updateRequirementByIdService = async (
   }
 
   const requirement = await Requirement.findOneAndUpdate(
-    { _id: requirementId, userId: new mongoose.Types.ObjectId(userId) },
+    { _id: requirementId },
     { $set: updateData },
     { new: true, runValidators: true }
   );
@@ -38,7 +36,7 @@ export const updateRequirementByIdService = async (
   if (!requirement) {
     const exists = await Requirement.exists({ _id: requirementId });
     if (!exists) throw new Error("Requirement not found");
-    throw new Error("You are not authorized to update this requirement");
+    throw new Error("Failed to update requirement");
   }
 
   return requirement;
@@ -51,7 +49,6 @@ export const getRequirementByIdService = async (
   return requirement;
 };
 
-/** Get the current user's requirement (at most one per user). */
 export const getMyRequirementService = async (userId: string): Promise<IRequirement | null> => {
   const requirement = await Requirement.findOne({ userId: new mongoose.Types.ObjectId(userId) }).exec();
   return requirement;

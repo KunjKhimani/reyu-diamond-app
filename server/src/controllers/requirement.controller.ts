@@ -87,17 +87,6 @@ export const getAllRequirements = async (req: Request, res: Response) => {
 
 export const updateRequirements = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id as string | undefined;
-
-    if (!userId) {
-      return sendResponse({
-        res,
-        statusCode: 401,
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
     const requirementId = req.params.id as string;
     const updateData = req.body;
 
@@ -110,7 +99,7 @@ export const updateRequirements = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedRequirement = await updateRequirementByIdService(userId, requirementId, updateData);
+    const updatedRequirement = await updateRequirementByIdService(requirementId, updateData);
 
     return sendResponse({
       res,
@@ -162,7 +151,7 @@ export const getMyRequirement = async (req: Request, res: Response) => {
       data: requirement,
       message: requirement
         ? "Requirement fetched successfully"
-        : "No requirement found. Create one with POST /.",
+        : "No requirement found. Create one Requirement POST",
     });
   } catch (error) {
     return sendResponse({

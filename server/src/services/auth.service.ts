@@ -1,8 +1,10 @@
+import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import type { IUser } from "../models/User.model.js";
 import { generateOTP } from "../utils/otp.utils.js";
 import sendEmail from "../services/email.service.js";
-import { otpTemplate } from "../utils/email.template.js";
+import { otpTemplate, forgotPasswordTemplate } from "../utils/email.template.js";
+import { generateResetPasswordToken } from "../services/token.service.js";
 
 export interface RegisterUserInput {
   username: string;
@@ -149,4 +151,50 @@ export const resendOtpService = async (email: string): Promise<void> => {
     subject: "Verify your email",
     html: otpTemplate(Number(otp)),
   });
+};
+
+export const forgetPasswordService = async (email: string): Promise<void> => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const token = generateResetPasswordToken(user._id.toString());
+  const baseUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+  const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Reset your password",
+    html: forgotPasswordTemplate(resetLink),
+  });
+};
+
+export const resetPasswordService = async (
+  token: string,
+  newPassword: string
+): Promise<IUser> => {
+  if (!newPassword || newPassword.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+
+  const decoded = jwt.verify(
+    token,
+    process.env.JWT_SECRET as string
+  ) as { id?: string; purpose?: string };
+
+  if (decoded.purpose !== "password_reset" || !decoded.id) {
+    throw new Error("Invalid or expired reset link");
+  }
+
+  const user = await User.findById(decoded.id).select("+password");
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return user;
 };

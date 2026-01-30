@@ -1,7 +1,11 @@
 import type { Request, Response } from "express";
 import sendResponse from "../utils/api.response.js";
-import { createBidService, getAllBidsByInventoryService, getMyBidByInventoryService, updateBidStatusService } from "../services/bid.service.js";
-import User from "../models/User.model.js";
+import {
+  createBidService,
+  getAllBidsByInventoryService,
+  getMyBidByInventoryService,
+  updateBidStatusService,
+} from "../services/bid.service.js";
 
 export const createBid = async (req: Request, res: Response) => {
   try {
@@ -112,7 +116,6 @@ export const createBid = async (req: Request, res: Response) => {
 export const getAllBid = async (req: Request, res: Response) => {
   try {
     const inventoryId = req.params.inventoryId as string;
-    const userId = (req as any).user?.id as string | undefined;
 
     if (!inventoryId) {
       return sendResponse({
@@ -123,31 +126,7 @@ export const getAllBid = async (req: Request, res: Response) => {
       });
     }
 
-    if (!userId) {
-      return sendResponse({
-        res,
-        statusCode: 401,
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    // Get user role
-    const user = await User.findById(userId).select("role");
-    if (!user) {
-      return sendResponse({
-        res,
-        statusCode: 404,
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    const bids = await getAllBidsByInventoryService(
-      inventoryId,
-      userId,
-      user.role as "admin" | "user"
-    );
+    const bids = await getAllBidsByInventoryService(inventoryId);
 
     return sendResponse({
       res,
@@ -242,6 +221,7 @@ export const updateBidStatus = async (req: Request, res: Response) => {
     const bidId = req.params.bidId as string;
     const { status } = req.body;
     const userId = (req as any).user?.id as string | undefined;
+    const role = (req as any).userRole as "admin" | "user" | undefined;
 
     if (!bidId) {
       return sendResponse({
@@ -249,15 +229,6 @@ export const updateBidStatus = async (req: Request, res: Response) => {
         statusCode: 400,
         success: false,
         message: "Bid ID is required",
-      });
-    }
-
-    if (!userId) {
-      return sendResponse({
-        res,
-        statusCode: 401,
-        success: false,
-        message: "Unauthorized",
       });
     }
 
@@ -270,22 +241,20 @@ export const updateBidStatus = async (req: Request, res: Response) => {
       });
     }
 
-    // Get user role
-    const user = await User.findById(userId).select("role");
-    if (!user) {
+    if (!userId || !role) {
       return sendResponse({
         res,
-        statusCode: 404,
+        statusCode: 401,
         success: false,
-        message: "User not found",
+        message: "Unauthorized",
       });
     }
 
     const updatedBid = await updateBidStatusService(
       bidId,
       status as "ACCEPTED" | "REJECTED" | "EXPIRED",
-      userId,
-      user.role as "admin" | "user"
+      userId as string,
+      role as "admin" | "user"
     );
 
     return sendResponse({

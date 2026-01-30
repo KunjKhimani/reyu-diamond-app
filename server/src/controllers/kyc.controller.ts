@@ -5,6 +5,7 @@ import { notifyAdminsForKyc } from "../services/notification.service.js";
 import {
   upsertKycForUser,
   sendMailToAllAdmins,
+  isVerifedService
 } from "../services/kyc.service.js";
 
 export const submitKyc = async (req: Request, res: Response) => {
@@ -19,21 +20,21 @@ export const submitKyc = async (req: Request, res: Response) => {
       });
     }
 
+    const otpVerified = await isVerifedService(userId);
+
+    if(!otpVerified) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Your e-mail is not verified",
+      });
+    }
+
     const { aadhaarNumber, panNumber } = (req.body ?? {}) as {
       aadhaarNumber?: string;
       panNumber?: string;
     };
-
-    // // Prevent duplicate KYC creation – user must use PUT to update
-    // const existingKyc = await findKycByUserId(userId);
-    // if (existingKyc) {
-    //   return sendResponse({
-    //     res,
-    //     statusCode: 409,
-    //     success: false,
-    //     message: "KYC already submitted. Use PUT /api/kyc/submit to update.",
-    //   });
-    // }
 
     const files = req.files as
       | { [fieldname: string]: Express.Multer.File[] }
@@ -50,7 +51,6 @@ export const submitKyc = async (req: Request, res: Response) => {
       });
     }
 
-    console.log()
     if (!aadhaarFile || !panFile) {
       return sendResponse({
         res,

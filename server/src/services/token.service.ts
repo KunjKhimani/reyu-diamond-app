@@ -8,4 +8,12 @@ const generateToken = (userId: string): string => {
   );
 };
 
+export const generateResetPasswordToken = (userId: string): string => {
+  return jwt.sign(
+    { id: userId, purpose: "password_reset" },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "1h" }
+  );
+};
+
 export default generateToken;

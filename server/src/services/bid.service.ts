@@ -126,9 +126,7 @@ export const createBidService = async ({
 };
 
 export const getAllBidsByInventoryService = async (
-  inventoryId: string,
-  userId: string,
-  userRole: "admin" | "user"
+  inventoryId: string
 ): Promise<any[]> => {
   // 1. Check if inventory exists
   const inventory = await Inventory.findById(inventoryId);
@@ -136,15 +134,7 @@ export const getAllBidsByInventoryService = async (
     throw new Error("Inventory not found");
   }
 
-  // 2. Check authorization: Admin or inventory owner (seller)
-  const isAdmin = userRole === "admin";
-  const isOwner = inventory.sellerId.toString() === userId;
-
-  if (!isAdmin && !isOwner) {
-    throw new Error("You are not authorized to view bids for this inventory");
-  }
-
-  // 3. Fetch all bids for this inventory
+  // 2. Fetch all bids for this inventory
   const bids = await Bid.find({ inventoryId })
     .populate("buyerId", "username email")
     .sort({ createdAt: -1 }); // Latest bids first
@@ -232,8 +222,17 @@ export const updateBidStatusService = async (
         { new: true, session }
       );
 
-      // If bid is ACCEPTED, update inventory status to ON_MEMO
       if (status === "ACCEPTED") {
+        // Expire all other SUBMITTED bids for this inventory
+        await Bid.updateMany(
+          {
+            inventoryId: bid.inventoryId,
+            _id: { $ne: bidId },
+            status: "SUBMITTED",
+          },
+          { $set: { status: "REJECTED" } },
+          { session }
+        );
         inventory.status = "ON_MEMO";
         inventory.locked = true;
         await inventory.save({ session });
@@ -256,8 +255,16 @@ export const updateBidStatusService = async (
       { new: true }
     );
 
-    // If bid is ACCEPTED, update inventory status to ON_MEMO
     if (status === "ACCEPTED") {
+      // Expire all other SUBMITTED bids for this inventory
+      await Bid.updateMany(
+        {
+          inventoryId: bid.inventoryId,
+          _id: { $ne: bidId },
+          status: "SUBMITTED",
+        },
+        { $set: { status: "REJECTED" } }
+      );
       inventory.status = "ON_MEMO";
       inventory.locked = true;
       await inventory.save();

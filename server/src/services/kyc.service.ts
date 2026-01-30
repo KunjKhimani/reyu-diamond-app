@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Kyc from "../models/kyc.model.js";
 import type { IKyc } from "../models/kyc.model.js";
 import User from "../models/User.model.js";
@@ -15,6 +16,14 @@ export interface SubmitKycInput {
 export const findKycByUserId = (userId: string) => {
   return Kyc.findOne({ userId });
 };
+
+export const isVerifedService = async (userId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user id");
+  }
+  const user = await User.findById(userId).select("isVerified");
+  return user?.isVerified ?? false;
+}
 
 export const upsertKycForUser = async ({
   userId,

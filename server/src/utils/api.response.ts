@@ -14,8 +14,8 @@ const sendResponse = <T>({
   statusCode,
   success,
   message,
-  data = null,
-  errors = null,
+  data,
+  errors,
 }: ApiResponseOptions<T>) => {
   return res.status(statusCode).json({
     success,

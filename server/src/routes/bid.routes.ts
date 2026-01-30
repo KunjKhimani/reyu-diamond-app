@@ -1,13 +1,27 @@
 import { Router } from "express";
 import protect from "../middlewares/auth.middleware.js";
-import { createBid, getAllBid, getSellerBid, updateBidStatus } from "../controllers/bid.controller.js";
-import { kycVerifiedOnly } from "../middlewares/kyc.middleware.js"
+import {
+  createBid,
+  getAllBid,
+  getSellerBid,
+  updateBidStatus,
+} from "../controllers/bid.controller.js";
+import { kycVerifiedOnly } from "../middlewares/kyc.middleware.js";
+import { loadUserRole, ownerOrAdmin } from "../middlewares/permission.middleware.js";
+import Inventory from "../models/Inventory.model.js";
 
 const router = Router();
 
 router.post("/:inventoryId", protect, kycVerifiedOnly, createBid);
-router.get("/:inventoryId", protect, kycVerifiedOnly, getAllBid);
+router.get(
+  "/:inventoryId",
+  protect,
+  kycVerifiedOnly,
+  loadUserRole,
+  ownerOrAdmin(Inventory, "sellerId", "inventoryId"),
+  getAllBid
+);
 router.get("/:inventoryId/my-bid", protect, kycVerifiedOnly, getSellerBid);
-router.patch("/:bidId/status", protect, kycVerifiedOnly, updateBidStatus);
+router.patch("/:bidId/status", protect, kycVerifiedOnly, loadUserRole, updateBidStatus);
 
 export default router;
