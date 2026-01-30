@@ -4,9 +4,11 @@ import {
   registerUser,
   verifyUserOtp,
   loginUser,
-  getUserById, 
+  getUserById,
   upadteUserById,
-  resendOtpService
+  resendOtpService,
+  forgetPasswordService,
+  resetPasswordService,
 } from "../services/auth.service.js";
 import sendResponse from "../utils/api.response.js";
 
@@ -296,3 +298,99 @@ export const resendOtp = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const forgetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    await forgetPasswordService(email);
+
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      message: `Password reset link has been sent on the ${email}.`,
+    });
+  } catch (err: any) {
+    if (err.message === "User not found") {
+      return sendResponse({
+        res,
+        statusCode: 404,
+        success: false,
+        message: "User not found",
+      });
+    }
+    return sendResponse({
+      res,
+      statusCode: 500,
+      success: false,
+      message: "Failed to send reset link",
+      errors: err?.message ?? "Something went wrong",
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Reset token is required",
+      });
+    }
+
+    await resetPasswordService(token, newPassword);
+
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      message: "Password has been reset successfully. You can now log in with your new password.",
+    });
+  } catch (err: any) {
+    if (err.message === "Invalid or expired reset link") {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: "Invalid or expired reset link. Please request a new password reset.",
+      });
+    }
+    if (err.message === "Password must be at least 6 characters") {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        success: false,
+        message: err.message,
+      });
+    }
+    if (err.message === "User not found") {
+      return sendResponse({
+        res,
+        statusCode: 404,
+        success: false,
+        message: "User not found",
+      });
+    }
+    return sendResponse({
+      res,
+      statusCode: 500,
+      success: false,
+      message: "Failed to reset password",
+      errors: err?.message ?? "Something went wrong",
+    });
+  }
+}; 

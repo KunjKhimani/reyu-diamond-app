@@ -23,7 +23,6 @@ export const getAllInventoriesService = async (): Promise<IInventory[]> => {
 
 export const updateInventoryService = async (
   inventoryId: string,
-  userId: string,
   updateData: any
 ) => {
     if (!mongoose.Types.ObjectId.isValid(inventoryId)) {
@@ -35,8 +34,7 @@ export const updateInventoryService = async (
     const inventory = Inventory.findOneAndUpdate(
         {
             _id: inventoryId,
-            sellerId: userId,
-            locked: false,
+        locked: false,
         },
         {
             $set: updateData,
@@ -59,7 +57,7 @@ export const updateInventoryService = async (
 
         throw {
             statusCode: 403,
-            message: "You are not authorized to delete this inventory",
+            message: "Inventory is locked and cannot be updated",
         };
     }
 
@@ -71,8 +69,7 @@ export const findInventoryById = async (inventoryId: string): Promise<IInventory
 }
 
 export const deleteInventoryService = async (
-  inventoryId: string,
-  userId: string
+  inventoryId: string
 ) => {
 
     if (!mongoose.Types.ObjectId.isValid(inventoryId)) {
@@ -84,7 +81,6 @@ export const deleteInventoryService = async (
 
     const inventory = await Inventory.findOneAndDelete({
         _id: inventoryId,
-        sellerId: userId,
         locked: false,
     });
 
@@ -100,7 +96,7 @@ export const deleteInventoryService = async (
 
         throw {
             statusCode: 403,
-            message: "You are not authorized to delete this inventory",
+            message: "Inventory is locked and cannot be deleted",
         };
     }
 

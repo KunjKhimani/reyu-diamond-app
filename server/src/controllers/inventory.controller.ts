@@ -93,17 +93,6 @@ export const getInventoryById = async (req: Request, res: Response) => {
 
 export const updateInventory = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user?.id as string | undefined;
-
-        if (!userId) {
-            return sendResponse({
-                res,
-                statusCode: 401,
-                success: false,
-                message: "Not authorized",
-            });
-        }
-
         const { id } = req.params;
         if (!id || typeof id !== "string") {
             return sendResponse({
@@ -116,7 +105,6 @@ export const updateInventory = async (req: Request, res: Response) => {
 
         const updatedItem = await updateInventoryService(
             id,
-            userId,
             req.body
         );
 
@@ -149,17 +137,6 @@ export const updateInventory = async (req: Request, res: Response) => {
 
 export const deleteInventory = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user?.id as string | undefined;
-
-        if (!userId) {
-            return sendResponse({
-                res,
-                statusCode: 401,
-                success: false,
-                message: "Unauthorized",
-            });
-        }
-
         const { id } = req.params;
         if (!id || typeof id !== "string") {
             return sendResponse({
@@ -170,7 +147,7 @@ export const deleteInventory = async (req: Request, res: Response) => {
             });
         }
 
-        const deletedInventory = await deleteInventoryService(id, userId);
+        const deletedInventory = await deleteInventoryService(id);
 
         return sendResponse({
             res,

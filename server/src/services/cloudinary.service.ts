@@ -14,7 +14,8 @@ export async function uploadToCloudinary(
       },
       (error, result) => {
         if (error) return reject(error);
-        if (!result?.secure_url) return reject(new Error("Cloudinary upload failed"));
+        if (!result?.secure_url)
+          return reject(new Error("Cloudinary upload failed"));
         resolve(result.secure_url);
       }
     );
@@ -23,3 +24,29 @@ export async function uploadToCloudinary(
   });
 }
 
+export async function uploadBufferToCloudinary(
+  buffer: Buffer,
+  folder: string,
+  publicId: string
+): Promise<string> {
+  Cloudinary();
+  return await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        public_id: publicId,
+        resource_type: "raw",
+        format: "pdf", // 🔑 VERY IMPORTANT
+        flags: "attachment", // 🔑 forces download
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        if (!result?.secure_url)
+          return reject(new Error("Cloudinary upload failed"));
+        resolve(result.secure_url);
+      }
+    );
+
+    stream.end(buffer);
+  });
+}

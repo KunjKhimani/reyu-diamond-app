@@ -9,14 +9,30 @@ import {
   deleteRequirement,
 } from "../controllers/requirement.controller.js";
 import { kycVerifiedOnly } from "../middlewares/kyc.middleware.js";
+import { loadUserRole, ownerOrAdmin, requireRole } from "../middlewares/permission.middleware.js";
+import Requirement from "../models/requirement.model.js";
 
 const router = Router();
 
 router.post("/", protect, kycVerifiedOnly, createRequirement);
-router.put("/:id", protect, kycVerifiedOnly, updateRequirements);
-router.get("/", protect, kycVerifiedOnly, getAllRequirements);
+router.put( 
+  "/:id", 
+  protect, 
+  kycVerifiedOnly, 
+  loadUserRole, 
+  // ownerOrAdmin(Requirement, "userId", "id"), 
+  updateRequirements
+);
+router.get("/", protect, kycVerifiedOnly, loadUserRole, requireRole("admin"), getAllRequirements);
 router.get("/my-requirement", protect, kycVerifiedOnly, getMyRequirement);
 // router.get("/:id", protect, kycVerifiedOnly, getRequirementById);
-router.delete("/:id", protect, kycVerifiedOnly, deleteRequirement);
+router.delete(
+  "/:id", 
+  protect, 
+  kycVerifiedOnly, 
+  loadUserRole, 
+  // ownerOrAdmin(Requirement, "userId", "id"), 
+  deleteRequirement
+);
 
 export default router;
