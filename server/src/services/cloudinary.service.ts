@@ -3,14 +3,18 @@ import { Cloudinary } from "../config/cloudinary.config.js";
 
 export async function uploadToCloudinary(
   file: Express.Multer.File,
-  folder: string
+  folder: string,
+  resourceType: "image" | "video" | "raw" | "auto" = "image"
 ): Promise<string> {
   Cloudinary();
-  return await new Promise((resolve, reject) => {
+
+  console.log(`[Cloudinary] Uploading file to folder: ${folder}, resourceType: ${resourceType}`);
+
+  return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,
-        resource_type: "image",
+        resource_type: resourceType,
       },
       (error, result) => {
         if (error) return reject(error);

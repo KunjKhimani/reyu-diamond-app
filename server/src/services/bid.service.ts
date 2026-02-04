@@ -1,28 +1,44 @@
 import mongoose from "mongoose";
 import Bid from "../models/Bid.model.js";
 import Inventory from "../models/Inventory.model.js";
+import { Auction } from "../models/Auction.model.js";
 
 interface CreateBidInput {
-  inventoryId: string;
+  auctionId: string;
   buyerId: string;
   bidAmount: number;
 }
 
 export const createBidService = async ({
-  inventoryId,
+  auctionId,
   buyerId,
   bidAmount,
 }: CreateBidInput) => {
   const isProduction = process.env.NODE_ENV === "production";
 
-  // 1. Fetch inventory
-  const inventory = await Inventory.findById(inventoryId);
+  // 1. Fetch auction
+  const auction = await Auction.findById(auctionId);
+  if (!auction) {
+    throw new Error("Auction not found");
+  }
 
+  // 2. Validate auction status (check dates)
+  const now = new Date();
+  if (now < auction.startDate) {
+    throw new Error("Auction has not started yet");
+  }
+  if (now > auction.endDate) {
+    throw new Error("Auction has ended");
+  }
+
+  // 3. Fetch inventory
+  const inventory = await Inventory.findById(auction.inventoryId) as any;
+  console.log("Inventory in createBidService:", inventory);
   if (!inventory) {
     throw new Error("Inventory not found");
   }
 
-  // 2. Check if buyer is the seller (not allowed)
+  // 4. Check if buyer is the seller (not allowed)
   if (inventory.sellerId.toString() === buyerId) {
     throw new Error("You cannot bid on your own inventory");
   }
@@ -31,8 +47,7 @@ export const createBidService = async ({
     throw new Error("Inventory is not available for bidding");
   }
 
-  const currentPrice =
-    inventory.currentBiddingPrice || inventory.basePrice;
+  const currentPrice = auction.currentBid > 0 ? auction.currentBid : auction.basePrice;
 
   if (bidAmount <= currentPrice) {
     throw new Error(
@@ -40,9 +55,9 @@ export const createBidService = async ({
     );
   }
 
-  // 3. Check if user already has the highest bid (prevent self-outbidding)
+  // 5. Check if user already has the highest bid (prevent self-outbidding)
   const currentHighestBid = await Bid.findOne({
-    inventoryId,
+    auctionId,
     isHighestBid: true,
   });
 
@@ -56,10 +71,10 @@ export const createBidService = async ({
     try {
       session.startTransaction();
 
-      // 2. Remove previous highest bid
+      // Remove previous highest bid
       await Bid.updateMany(
         {
-          inventoryId,
+          auctionId,
           isHighestBid: true,
         },
         {
@@ -68,11 +83,11 @@ export const createBidService = async ({
         { session }
       );
 
-      // 3. Create new bid
+      // Create new bid
       const bid = await Bid.create(
         [
           {
-            inventoryId,
+            auctionId,
             buyerId,
             bidAmount,
             status: "SUBMITTED",
@@ -82,7 +97,17 @@ export const createBidService = async ({
         { session }
       );
 
-      // 4. Update inventory price
+      const createdBid = bid[0];
+      if (!createdBid) throw new Error("Failed to create bid");
+
+      // Update Auction price and bids
+      auction.currentBid = bidAmount;
+      auction.highestBidderId = new mongoose.Types.ObjectId(buyerId);
+      auction.highestBidId = createdBid._id as mongoose.Types.ObjectId;
+      auction.bidIds.push(createdBid._id as mongoose.Types.ObjectId);
+      await auction.save({ session });
+
+      // Update Inventory price (optional, but keeping for consistency if needed)
       inventory.currentBiddingPrice = bidAmount;
       await inventory.save({ session });
 
@@ -97,10 +122,10 @@ export const createBidService = async ({
     }
   } else {
     // Direct CRUD operations in development
-    // 2. Remove previous highest bid
+    // Remove previous highest bid
     await Bid.updateMany(
       {
-        inventoryId,
+        auctionId,
         isHighestBid: true,
       },
       {
@@ -108,16 +133,23 @@ export const createBidService = async ({
       }
     );
 
-    // 3. Create new bid
+    // Create new bid
     const bid = await Bid.create({
-      inventoryId,
+      auctionId,
       buyerId,
       bidAmount,
       status: "SUBMITTED",
       isHighestBid: true,
     });
 
-    // 4. Update inventory price
+    // Update Auction price and bids
+    auction.currentBid = bidAmount;
+    auction.highestBidderId = new mongoose.Types.ObjectId(buyerId);
+    auction.highestBidId = bid._id as mongoose.Types.ObjectId;
+    auction.bidIds.push(bid._id as mongoose.Types.ObjectId);
+    await auction.save();
+
+    // Update Inventory price
     inventory.currentBiddingPrice = bidAmount;
     await inventory.save();
 
@@ -125,17 +157,33 @@ export const createBidService = async ({
   }
 };
 
-export const getAllBidsByInventoryService = async (
-  inventoryId: string
+export const getAllBidsByAuctionService = async (
+  auctionId: string,
+  userId: string,
+  userRole: string | undefined
 ): Promise<any[]> => {
-  // 1. Check if inventory exists
-  const inventory = await Inventory.findById(inventoryId);
+  // 1. Find auction
+  const auction = await Auction.findById(auctionId);
+  if (!auction) {
+    throw new Error("Auction not found");
+  }
+
+  // 2. Find associated inventory
+  const inventory = await Inventory.findById(auction.inventoryId) as any;
   if (!inventory) {
     throw new Error("Inventory not found");
   }
 
-  // 2. Fetch all bids for this inventory
-  const bids = await Bid.find({ inventoryId })
+  // 3. Check authorization: Admin or inventory owner (seller)
+  const isAdmin = userRole === "admin";
+  const isOwner = inventory.sellerId.toString() === userId;
+
+  if (!isAdmin && !isOwner) {
+    throw new Error("You are not authorized to view bids for this inventory");
+  }
+
+  // 4. Fetch all bids for this auction
+  const bids = await Bid.find({ auctionId: auction._id })
     .populate("buyerId", "username email")
     .sort({ createdAt: -1 }); // Latest bids first
 
@@ -152,15 +200,42 @@ export const getMyBidByInventoryService = async (
     throw new Error("Inventory not found");
   }
 
-  // 2. Find the current user's bid for this inventory
+  // 2. Find latest auction
+  const auction = await Auction.findOne({ inventoryId }).sort({ createdAt: -1 });
+  if (!auction) {
+    return null;
+  }
+
+  // 3. Find the current user's bid for this auction
   const bid = await Bid.findOne({
-    inventoryId,
+    auctionId: auction._id,
     buyerId,
   })
     .populate("buyerId", "username email")
-    .populate("inventoryId", "barcode shape carat color clarity lab location basePrice currentBiddingPrice status");
+    .populate("auctionId"); // Populating auction instead of inventory directly on bid
 
   // Return null if no bid found (not an error, just no bid placed yet)
+  return bid;
+};
+
+export const getMyBidByAuctionService = async (
+  auctionId: string,
+  buyerId: string
+): Promise<any | null> => {
+  // 1. Check if auction exists
+  const auction = await Auction.findById(auctionId);
+  if (!auction) {
+    throw new Error("Auction not found");
+  }
+
+  // 2. Find the current user's bid for this auction
+  const bid = await Bid.findOne({
+    auctionId,
+    buyerId,
+  })
+    .populate("buyerId", "username email")
+    .populate("auctionId");
+
   return bid;
 };
 
@@ -183,8 +258,13 @@ export const updateBidStatusService = async (
     throw new Error("Bid is not in SUBMITTED status and cannot be updated");
   }
 
-  // 3. Get inventory and check authorization
-  const inventory = await Inventory.findById(bid.inventoryId);
+  // 3. Get auction, then inventory
+  const auction = await Auction.findById(bid.auctionId);
+  if (!auction) {
+    throw new Error("Auction not found");
+  }
+
+  const inventory = await Inventory.findById(auction.inventoryId) as any;
   if (!inventory) {
     throw new Error("Inventory not found");
   }
@@ -200,7 +280,7 @@ export const updateBidStatusService = async (
   // 5. If accepting, check if another bid is already accepted
   if (status === "ACCEPTED") {
     const existingAcceptedBid = await Bid.findOne({
-      inventoryId: bid.inventoryId,
+      auctionId: bid.auctionId,
       status: "ACCEPTED",
     });
 
@@ -226,7 +306,7 @@ export const updateBidStatusService = async (
         // Expire all other SUBMITTED bids for this inventory
         await Bid.updateMany(
           {
-            inventoryId: bid.inventoryId,
+            auctionId: bid.auctionId,
             _id: { $ne: bidId },
             status: "SUBMITTED",
           },
@@ -259,7 +339,7 @@ export const updateBidStatusService = async (
       // Expire all other SUBMITTED bids for this inventory
       await Bid.updateMany(
         {
-          inventoryId: bid.inventoryId,
+          auctionId: bid.auctionId,
           _id: { $ne: bidId },
           status: "SUBMITTED",
         },

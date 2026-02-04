@@ -12,7 +12,7 @@ export type DealStatus =
 
 export interface IDeal extends Document {
   bidId: mongoose.Types.ObjectId;
-  inventoryId: mongoose.Types.ObjectId;
+  auctionId: mongoose.Types.ObjectId;
   buyerId: mongoose.Types.ObjectId;
   sellerId: mongoose.Types.ObjectId;
 
@@ -64,9 +64,9 @@ const dealSchema = new mongoose.Schema<IDeal>(
       index: true,
     },
 
-    inventoryId: {
+    auctionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Inventory",
+      ref: "Auction",
       required: true,
       index: true,
     },

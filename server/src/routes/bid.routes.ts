@@ -12,16 +12,15 @@ import Inventory from "../models/Inventory.model.js";
 
 const router = Router();
 
-router.post("/:inventoryId", protect, kycVerifiedOnly, createBid);
+router.post("/:auctionId", protect, kycVerifiedOnly, createBid);
 router.get(
-  "/:inventoryId",
+  "/:auctionId",
   protect,
   kycVerifiedOnly,
   loadUserRole,
-  ownerOrAdmin(Inventory, "sellerId", "inventoryId"),
   getAllBid
 );
-router.get("/:inventoryId/my-bid", protect, kycVerifiedOnly, getSellerBid);
+router.get("/:auctionId/my-bid", protect, kycVerifiedOnly, getSellerBid);
 router.patch("/:bidId/status", protect, kycVerifiedOnly, loadUserRole, updateBidStatus);
 
 export default router;

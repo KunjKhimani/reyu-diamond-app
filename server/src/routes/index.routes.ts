@@ -7,6 +7,7 @@ import requirementRoutes from "./requirement.routes.js";
 import inventoryRoutes from "./inventory.routes.js";
 import bidRoutes from "./bid.routes.js";
 import dealRoutes from "./deal.routes.js";
+import auctionRoutes from "./auction.routes.js";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.use("/admin", adminRoutes);
 router.use("/email", emailRoutes);
 router.use("/requirements", requirementRoutes);
 router.use("/inventory", inventoryRoutes);
+router.use("/auction", auctionRoutes);
 router.use("/bid", bidRoutes);
 router.use("/deal", dealRoutes);
 

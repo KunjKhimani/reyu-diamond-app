@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import User from "../models/User.model.js";
 import Kyc from "../models/kyc.model.js";
 import sendResponse from "../utils/api.response.js";
 
@@ -9,6 +10,7 @@ export const kycVerifiedOnly = async (
 ) => {
   try {
     const userId = (req as any).user?.id;
+
     if (!userId) {
       return sendResponse({
         res,
@@ -16,6 +18,12 @@ export const kycVerifiedOnly = async (
         success: false,
         message: "Unauthorized",
       });
+    }
+
+    const user = await User.findById(userId);
+
+    if (user?.role === "admin") {
+      return next();
     }
 
     const kycDoc = await Kyc.findOne({ userId, status: "approved" });

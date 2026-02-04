@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Deal, { type DealStatus } from "../models/Deal.model.js";
 import Bid from "../models/Bid.model.js";
 import Inventory from "../models/Inventory.model.js";
+import { Auction } from "../models/Auction.model.js";
 
 export const createDealService = async (bidId: string, userId: string) => {
   if (!mongoose.Types.ObjectId.isValid(bidId)) {
@@ -20,8 +21,13 @@ export const createDealService = async (bidId: string, userId: string) => {
     throw new Error("Bid not found");
   }
 
-  // 3. Find inventory
-  const inventory = await Inventory.findById(bid.inventoryId);
+  // 3. Find auction, then inventory
+  const auction = await Auction.findById(bid.auctionId);
+  if (!auction) {
+    throw new Error("Auction not found");
+  }
+
+  const inventory = await Inventory.findById(auction.inventoryId);
   if (!inventory) {
     throw new Error("Inventory not found");
   }
@@ -34,7 +40,7 @@ export const createDealService = async (bidId: string, userId: string) => {
   // 5. Create deal (snapshot of current bid + inventory ownership)
   const deal = await Deal.create({
     bidId: bid._id,
-    inventoryId: bid.inventoryId,
+    auctionId: auction._id,
     buyerId: bid.buyerId,
     sellerId: inventory.sellerId,
     agreedAmount: bid.bidAmount,
@@ -53,7 +59,7 @@ function getId(v: any): string {
 const dealListPopulate = [
   { path: "buyerId", select: "username email" },
   { path: "sellerId", select: "username email" },
-  { path: "inventoryId" },
+  { path: "auctionId" },
   { path: "bidId" },
 ];
 

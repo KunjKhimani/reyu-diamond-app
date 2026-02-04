@@ -11,25 +11,36 @@ import { kycVerifiedOnly } from "../middlewares/kyc.middleware.js";
 import { loadUserRole, ownerOrAdmin } from "../middlewares/permission.middleware.js";
 import Inventory from "../models/Inventory.model.js";
 
+import upload from "../middlewares/upload.middleware.js";
+
 const router = Router();
 
-router.post("/", protect, kycVerifiedOnly, createInventory);
+router.post(
+  "/",
+  protect,
+  kycVerifiedOnly,
+  upload.fields([
+    { name: "images", maxCount: 10 },
+    { name: "video", maxCount: 1 },
+  ]),
+  createInventory
+);
 router.get("/", getAllInventories);
 router.get("/:id", getInventoryById);
-router.put( 
-  "/:id", 
-  protect, 
-  kycVerifiedOnly, 
-  loadUserRole, 
+router.put(
+  "/:id",
+  protect,
+  kycVerifiedOnly,
+  loadUserRole,
   // ownerOrAdmin(Inventory, "sellerId", "id"), 
   updateInventory
 );
-router.delete( 
-  "/:id", 
-  protect, 
-  kycVerifiedOnly, 
-  loadUserRole, 
-  ownerOrAdmin(Inventory, "sellerId", "id"), 
+router.delete(
+  "/:id",
+  protect,
+  kycVerifiedOnly,
+  loadUserRole,
+  ownerOrAdmin(Inventory, "sellerId", "id"),
   deleteInventory
 );
 

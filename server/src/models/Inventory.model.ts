@@ -1,20 +1,38 @@
 import mongoose, { Document, Model } from "mongoose";
 
-export type InventoryStatus = "IN_LOCKER" | "ON_MEMO" | "SOLD";
+export type InventoryStatus = "AVAILABLE" | "NOT_AVAILABLE" | "LISTED" | "SOLD" | "ON_MEMO";
 
 export interface IInventory extends Document {
   sellerId: mongoose.Types.ObjectId;
+  title: string;
+  description?: string;
   barcode: string;
-  shape: string;
+
   carat: number;
-  color: string;
-  clarity: string;
+  cut: "EXCELLENT" | "VERY_GOOD" | "GOOD" | "FAIR" | "POOR";
+  color: "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M";
+  clarity: "FL" | "IF" | "VVS1" | "VVS2" | "VS1" | "VS2" | "SI1" | "SI2" | "I1";
+  shape:
+  | "ROUND"
+  | "PRINCESS"
+  | "CUSHION"
+  | "EMERALD"
+  | "OVAL"
+  | "RADIANT"
+  | "ASSCHER"
+  | "MARQUISE"
+  | "HEART"
+  | "PEAR";
+
   lab: string;
   location: string;
-  basePrice: number;
-  currentBiddingPrice: number;
+  price: number;
+  currency: string;
+
   status: InventoryStatus;
   locked: boolean;
+  images: string[];
+  video?: string;
 }
 
 const inventorySchema = new mongoose.Schema<IInventory>(
@@ -26,6 +44,17 @@ const inventorySchema = new mongoose.Schema<IInventory>(
       index: true,
     },
 
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
     barcode: {
       type: String,
       required: true,
@@ -33,49 +62,95 @@ const inventorySchema = new mongoose.Schema<IInventory>(
       index: true,
     },
 
-    shape: String,
-    carat: Number,
-    color: String,
-    clarity: String,
-    lab: String,
-    location: String,
+    carat: {
+      type: Number,
+      required: true,
+      min: 0.01,
+      max: 100,
+    },
 
-    basePrice: {
+    cut: {
+      type: String,
+      enum: ["EXCELLENT", "VERY_GOOD", "GOOD", "FAIR", "POOR"],
+      required: true,
+    },
+
+    color: {
+      type: String,
+      enum: ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"],
+      required: true,
+    },
+
+    clarity: {
+      type: String,
+      enum: ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1"],
+      required: true,
+    },
+
+    shape: {
+      type: String,
+      enum: [
+        "ROUND",
+        "PRINCESS",
+        "CUSHION",
+        "EMERALD",
+        "OVAL",
+        "RADIANT",
+        "ASSCHER",
+        "MARQUISE",
+        "HEART",
+        "PEAR",
+      ],
+      required: true,
+    },
+
+    lab: {
+      type: String,
+      required: true,
+    },
+
+    location: {
+      type: String,
+      required: true,
+    },
+
+    price: {
       type: Number,
       required: true,
     },
 
-    currentBiddingPrice: Number,
+    currency: {
+      type: String,
+      required: true,
+      default: "USD",
+    },
 
     status: {
       type: String,
-      enum: ["IN_LOCKER", "ON_MEMO", "SOLD"],
-      default: "IN_LOCKER",
+      enum: ["AVAILABLE", "NOT_AVAILABLE", "LISTED", "SOLD", "ON_MEMO"],
+      default: "AVAILABLE",
     },
 
     locked: {
       type: Boolean,
       default: false,
     },
+
+    images: {
+      type: [String],
+      default: [],
+    },
+
+    video: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-inventorySchema.index(
-  {
-    sellerId: 1,
-    shape: 1,
-    carat: 1,
-    color: 1,
-    clarity: 1,
-    lab: 1,
-    location: 1,
-    basePrice: 1,
-  },
-  { unique: true }
+const Inventory: Model<IInventory> = mongoose.model<IInventory>(
+  "Inventory",
+  inventorySchema
 );
-
-const Inventory: Model<IInventory> =
-  mongoose.model<IInventory>("Inventory", inventorySchema);
 
 export default Inventory;

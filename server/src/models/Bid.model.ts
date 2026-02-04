@@ -7,7 +7,7 @@ export type BidStatus =
   | "EXPIRED";
 
 export interface IBid extends Document {
-  inventoryId: mongoose.Types.ObjectId;
+  auctionId: mongoose.Types.ObjectId;
   buyerId: mongoose.Types.ObjectId;
 
   bidAmount: number;
@@ -21,9 +21,9 @@ export interface IBid extends Document {
 
 const bidSchema = new mongoose.Schema<IBid>(
   {
-    inventoryId: {
+    auctionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Inventory",
+      ref: "Auction",
       required: true,
       index: true,
     },
@@ -60,7 +60,7 @@ const bidSchema = new mongoose.Schema<IBid>(
 
 // 🔒 Only ONE highest bid allowed per inventory
 bidSchema.index(
-  { inventoryId: 1, isHighestBid: 1 },
+  { auctionId: 1, isHighestBid: 1 },
   {
     unique: true,
     partialFilterExpression: { isHighestBid: true },
@@ -69,7 +69,7 @@ bidSchema.index(
 
 // 🚫 Prevent same buyer placing same bid again
 bidSchema.index(
-  { inventoryId: 1, buyerId: 1, bidAmount: 1 },
+  { auctionId: 1, buyerId: 1, bidAmount: 1 },
   { unique: true }
 );
 
