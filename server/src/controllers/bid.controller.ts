@@ -2,16 +2,17 @@ import type { Request, Response } from "express";
 import sendResponse from "../utils/api.response.js";
 import {
   createBidService,
-  getAllBidsByInventoryService,
+  getAllBidsByAuctionService,
+  getMyBidByAuctionService,
   getMyBidByInventoryService,
   updateBidStatusService,
 } from "../services/bid.service.js";
 
 export const createBid = async (req: Request, res: Response) => {
   try {
-    const inventoryId = Array.isArray(req.params.inventoryId)
-      ? req.params.inventoryId[0]
-      : req.params.inventoryId;
+    const auctionId = Array.isArray(req.params.auctionId)
+      ? req.params.auctionId[0]
+      : req.params.auctionId;
     const { bidAmount } = req.body;
 
     // from protect middleware
@@ -26,12 +27,12 @@ export const createBid = async (req: Request, res: Response) => {
       });
     }
 
-    if (!inventoryId) {
+    if (!auctionId) {
       return sendResponse({
         res,
         statusCode: 400,
         success: false,
-        message: "Valid inventoryId is required",
+        message: "Valid auctionId is required",
       });
     }
 
@@ -45,7 +46,7 @@ export const createBid = async (req: Request, res: Response) => {
     }
 
     const bid = await createBidService({
-      inventoryId,
+      auctionId,
       buyerId,
       bidAmount,
     });
@@ -115,18 +116,29 @@ export const createBid = async (req: Request, res: Response) => {
 
 export const getAllBid = async (req: Request, res: Response) => {
   try {
-    const inventoryId = req.params.inventoryId as string;
+    const auctionId = req.params.auctionId as string;
+    const userId = (req as any).user?.id as string | undefined;
+    const role = (req as any).userRole as string | undefined;
 
-    if (!inventoryId) {
+    if (!auctionId) {
       return sendResponse({
         res,
         statusCode: 400,
         success: false,
-        message: "Inventory ID is required",
+        message: "Auction ID is required",
       });
     }
 
-    const bids = await getAllBidsByInventoryService(inventoryId);
+    if (!userId) {
+      return sendResponse({
+        res,
+        statusCode: 401,
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const bids = await getAllBidsByAuctionService(auctionId, userId, role);
 
     return sendResponse({
       res,
@@ -136,12 +148,21 @@ export const getAllBid = async (req: Request, res: Response) => {
       data: bids,
     });
   } catch (error: any) {
-    if (error.message === "Inventory not found") {
+    if (error.message === "Auction not found" || error.message === "Inventory not found") {
       return sendResponse({
         res,
         statusCode: 404,
         success: false,
-        message: "Inventory not found",
+        message: error.message,
+      });
+    }
+
+    if (error.message?.includes("not authorized")) {
+      return sendResponse({
+        res,
+        statusCode: 403,
+        success: false,
+        message: "You are not authorized to view bids for this inventory",
       });
     }
 
@@ -166,15 +187,15 @@ export const getAllBid = async (req: Request, res: Response) => {
 
 export const getSellerBid = async (req: Request, res: Response) => {
   try {
-    const inventoryId = req.params.inventoryId as string;
+    const auctionId = req.params.auctionId as string;
     const buyerId = (req as any).user?.id as string | undefined;
 
-    if (!inventoryId) {
+    if (!auctionId) {
       return sendResponse({
         res,
         statusCode: 400,
         success: false,
-        message: "Inventory ID is required",
+        message: "Auction ID is required",
       });
     }
 
@@ -187,22 +208,22 @@ export const getSellerBid = async (req: Request, res: Response) => {
       });
     }
 
-    const bid = await getMyBidByInventoryService(inventoryId, buyerId);
+    const bid = await getMyBidByAuctionService(auctionId, buyerId);
 
     return sendResponse({
       res,
       statusCode: 200,
       success: true,
-      message: bid ? "Your bid fetched successfully" : "No bid found for this inventory",
+      message: bid ? "Your bid fetched successfully" : "No bid found for this auction",
       data: bid,
     });
   } catch (error: any) {
-    if (error.message === "Inventory not found") {
+    if (error.message === "Auction not found") {
       return sendResponse({
         res,
         statusCode: 404,
         success: false,
-        message: "Inventory not found",
+        message: "Auction not found",
       });
     }
 

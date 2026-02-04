@@ -11,6 +11,11 @@ export interface DealInvoiceData {
   sellerId?: { username?: string; email?: string; _id?: unknown } | unknown;
   inventoryId?: { _id?: unknown } | unknown;
   bidId?: { _id?: unknown } | unknown;
+  history?: {
+    status: string;
+    changedBy?: { username?: string; email?: string } | unknown;
+    changedAt: Date | string;
+  }[];
 }
 
 function getStr(v: unknown): string {
@@ -40,6 +45,27 @@ export function getDealInvoiceHtml(deal: DealInvoiceData): string {
       : typeof deal.createdAt === "string"
         ? deal.createdAt
         : "";
+
+  let historyRows = "";
+  if (deal.history && Array.isArray(deal.history) && deal.history.length > 0) {
+    historyRows = deal.history
+      .map((h) => {
+        const dateStr =
+          h.changedAt instanceof Date
+            ? h.changedAt.toLocaleString()
+            : String(h.changedAt || "");
+        // Only show username if populated, else just say 'System' or '-'
+        // Note: changedBy might typically be an ID if not populated, but verify what's passed.
+        // Assuming population happens at controller/service level for PDF generation if needed.
+        // If not populated, show nothing or just the status change.
+        return `
+        <div class="row">
+          <span class="value" style="font-size: 13px;">${escapeHtml(h.status)}</span>
+          <span class="meta">${escapeHtml(dateStr)}</span>
+        </div>`;
+      })
+      .join("");
+  }
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -171,6 +197,14 @@ export function getDealInvoiceHtml(deal: DealInvoiceData): string {
       <span class="value meta">${escapeHtml(bidIdVal?._id != null ? String(bidIdVal._id) : getStr(deal.bidId))}</span>
     </div>
   </div>
+
+  ${historyRows
+      ? `<div class="section">
+           <div class="section-title">History</div>
+           ${historyRows}
+         </div>`
+      : ""
+    }
 
   <div class="footer">
     Generated on ${new Date().toISOString()} · This document is for record-keeping only.
