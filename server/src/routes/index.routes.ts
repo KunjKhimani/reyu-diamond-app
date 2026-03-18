@@ -1,4 +1,6 @@
 import { Router } from "express";
+import type { Request, Response } from "express";
+import { kafkaService } from "../services/kafka.service.js";
 import authRoutes from "./auth.routes.js";
 import kycRoutes from "./kyc.routes.js";
 import adminRoutes from "./admin.routes.js";
@@ -17,6 +19,27 @@ import analyticsRoutes from "./analytics.routes.js";
 import notificationRoutes from "./notification.routes.js";
 
 const router = Router();
+
+
+router.get("/users", (req, res) => {
+  res.send("Users API");
+});
+
+// router.get("/kafka-test", async (req: Request, res: Response) => {
+//   try {
+//     const testMessage = {
+//       type: "KAFKA_TEST",
+//       payload: {
+//         message: "Hello from Kafka! System is working.",
+//         timestamp: new Date().toISOString()
+//       }
+//     };
+//     await kafkaService.produce("notification-events", testMessage);
+//     res.json({ success: true, message: "Test event produced to Kafka!" });
+//   } catch (error: any) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
 
 router.use("/auth", authRoutes);
 router.use("/kyc", kycRoutes);

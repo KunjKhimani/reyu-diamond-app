@@ -9,6 +9,7 @@ import { Advertisement } from "../models/Advertisement.model.js";
 import type { ISystemLog } from "../models/SystemLog.model.js";
 import Deal from "../models/Deal.model.js";
 import Notification from "../models/Notification.model.js";
+import { kafkaService } from "./kafka.service.js";
 
 export const notifyAdminsForKyc = async (userId: string) => {
   const notification = {
@@ -113,15 +114,20 @@ export const notifyAllUsersNewAuction = async (auctionId: string) => {
     };
 
     const ownerId = inv?.sellerId?.toString();
-    const users = await User.find({
-      ...(ownerId ? { _id: { $ne: ownerId } } : {}),
-    }).select("_id");
+    
+    // Produce event to Kafka instead of processing all users in-line
+    await kafkaService.produce("notification-events", {
+      type: "NEW_AUCTION_ALL",
+      payload: {
+        auctionId,
+        title,
+        body,
+        data,
+        excludeUserId: ownerId
+      }
+    });
 
-    for (const user of users) {
-      const userId = user._id.toString();
-      await sendFcmToUser(userId, { title, body }, data);
-      await saveNotification(userId, { title, body }, data);
-    }
+    console.log(`Produced NEW_AUCTION_ALL event to Kafka for auction ${auctionId}`);
   } catch (error: any) {
     console.error("Error in notifyAllUsersNewAuction:", error.message);
   }
