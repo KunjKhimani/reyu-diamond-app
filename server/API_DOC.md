@@ -132,14 +132,27 @@ This document provides a comprehensive overview of the REST API endpoints for th
 ## 💬 Communication
 **Routes:** `/chat`, `/message`, `/notifications`
 
-### Chat & Messaging
-| Method | Route | Endpoint | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/chat` | `/conversations` | Start a new chat conversation. |
-| `GET` | `/chat` | `/conversations` | Get all user conversations. |
-| `PUT` | `/chat` | `/conversations/:id/read` | Mark a conversation as read. |
-| `POST` | `/message` | `/` | Send a message (Text/Media). |
-| `GET` | `/message` | `/:conversationId` | Get messages for a chat. |
+### Chat & Messaging (REST API)
+| Method | Route | Endpoint | Description | Middleware/Validation |
+| :--- | :--- | :--- | :--- | :--- |
+| `POST` | `/chat` | `/conversations` | Start a new chat conversation. | `protect`, `kycVerifiedOnly`, `createConversationSchema` |
+| `GET` | `/chat` | `/conversations` | Get all user conversations. | `protect`, `kycVerifiedOnly` |
+| `PUT` | `/chat` | `/conversations/:id/read` | Mark a conversation as read. | `protect`, `kycVerifiedOnly` |
+| `POST` | `/message` | `/` | Send a message (Text/Media). | `protect`, `kycVerifiedOnly`, `upload.any()`, `sendMessageSchema` |
+| `GET` | `/message` | `/:conversationId` | Get messages for a specific chat conversation. | `protect`, `kycVerifiedOnly` |
+| `DELETE`| `/message` | `/:messageId` | Delete a specific message. | `protect`, `kycVerifiedOnly` |
+
+### Chat & Messaging (WebSocket)
+**Connection URL:** `<BACKEND_URL>` (Using Socket.IO)
+
+*Authentication:* Pass the JWT token either in `auth.token` or `headers.authorization` during the initial handshake.
+
+| Event (Emit/On) | Payload | Description |
+| :--- | :--- | :--- |
+| `connection` | N/A | Connect to the WebSocket server. User automatically joins a personal room `(userId)`. |
+| `join_conversation` | `conversationId` (string) | Join a specific chat room to receive its real-time messages. |
+| `leave_conversation`| `conversationId` (string) | Leave a specific chat room. |
+| `disconnect` | N/A | Disconnect from the WebSocket server. |
 
 ### Notifications
 | Method | Endpoint | Description |
