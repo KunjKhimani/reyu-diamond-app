@@ -12,6 +12,7 @@ import { initAuctionCron } from "./cron/auction.cron.js";
 import { initPaymentCron } from "./cron/payment.cron.js";
 import { initAdvertisementCron } from "./cron/advertisement.cron.js";
 import { logService } from "./services/log.service.js";
+import { startEmailWorker } from "./queues/email.queue.js";
 
 dotenv.config();
 
@@ -83,5 +84,12 @@ app.use(async (err: any, req: Request, res: Response, next: express.NextFunction
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Server running on port ${PORT}`);
+  // Start email worker if not disabled
+  const isWorkerDisabled = process.env.DISABLE_EMAIL_WORKER?.trim() === "true";
+  
+  if (!isWorkerDisabled) {
+    startEmailWorker();
+  } else {
+    console.log("⏸️ Email Worker is DISABLED (Queue inspection mode)");
+  }
 });

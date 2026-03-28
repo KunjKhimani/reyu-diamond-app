@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import type { IUser } from "../models/User.model.js";
 import { generateOTP } from "../utils/otp.utils.js";
-import sendEmail from "../services/email.service.js";
+import { sendEmailViaQueue as sendEmail } from "../queues/email.queue.js";
 import { otpTemplate, forgotPasswordTemplate } from "../utils/email.template.js";
 import { generateResetPasswordToken } from "../services/token.service.js";
 
