@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import type { IUser } from "../models/User.model.js";
 import { generateOTP } from "../utils/otp.utils.js";
-import sendEmail from "../services/email.service.js";
+import { addEmailJob } from "../queues/email.queue.js";
 import { otpTemplate, forgotPasswordTemplate } from "../utils/email.template.js";
 import { generateResetPasswordToken } from "../services/token.service.js";
 
@@ -46,7 +46,7 @@ export const registerUser = async (
 
   await user.save();
 
-  await sendEmail({
+  await addEmailJob({
       to : user.email,
       subject : "Verfiy your email",
       html : otpTemplate(Number(otp)),
@@ -146,7 +146,7 @@ export const resendOtpService = async (email: string): Promise<void> => {
 
   await user.save();
 
-  await sendEmail({
+  await addEmailJob({
     to: user.email,
     subject: "Verify your email",
     html: otpTemplate(Number(otp)),
@@ -164,7 +164,7 @@ export const forgetPasswordService = async (email: string): Promise<void> => {
   const baseUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
   const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
-  await sendEmail({
+  await addEmailJob({
     to: user.email,
     subject: "Reset your password",
     html: forgotPasswordTemplate(resetLink),

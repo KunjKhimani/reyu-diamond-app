@@ -3,7 +3,6 @@
     "dist"
   ],
   "ext": "js",
-  "exec": "node ./dist/server.js",
   "cwd": ".",
   "legacyWatch": true,
   "verbose": true

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import KYC from "../models/kyc.model.js";
 import type { IKyc } from "../models/kyc.model.js";
 import User from "../models/User.model.js";
-import sendEmail from "../services/email.service.js";
+import { addEmailJob } from "../queues/email.queue.js";
 import { sendToAdminTemplate } from "../utils/email.template.js";
 
 export interface SubmitKycInput {
@@ -79,7 +79,7 @@ export const sendMailToAllAdmins = async (userId: string): Promise<void> => {
     admins
       .filter((admin) => !!admin.email)
       .map((admin) =>
-        sendEmail({
+        addEmailJob({
           to: admin.email,
           subject: "Approval required for new user account",
           //@ts-ignore
