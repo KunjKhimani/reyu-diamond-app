@@ -9,6 +9,7 @@ import { Advertisement } from "../models/Advertisement.model.js";
 import type { ISystemLog } from "../models/SystemLog.model.js";
 import Deal from "../models/Deal.model.js";
 import Notification from "../models/Notification.model.js";
+import { sendNotificationViaQueue } from "../queues/notification.queue.js";
 
 export const notifyAdminsForKyc = async (userId: string) => {
   const notification = {
@@ -185,20 +186,15 @@ const sendFcmToUser = async (
   notification: { title: string; body: string },
   data: Record<string, string>
 ) => {
-  const user = await User.findById(userId).select("fcmToken");
-  if (!user?.fcmToken) return;
   try {
-    await fcm.send({ token: user.fcmToken, notification, data });
-    console.log(`FCM sent to user ${userId}: ${notification.title}`);
-  } catch (err: any) {
-    console.error(`FCM Error (${notification.title}) for user ${userId}:`, err.message);
-    if (
-      err.code === "messaging/registration-token-not-registered" ||
-      err.message?.includes("SenderId mismatch") ||
-      err.code === "messaging/mismatched-credential"
-    ) {
-      await User.updateOne({ _id: userId }, { $unset: { fcmToken: "" } });
-    }
+    await sendNotificationViaQueue({
+      userId,
+      notification,
+      data,
+      type: "SINGLE"
+    });
+  } catch (error) {
+    console.error(`Error enqueuing FCM for user ${userId}:`, error);
   }
 };
 
@@ -223,21 +219,14 @@ const sendFcmToAdmins = async (
   notification: { title: string; body: string },
   data: Record<string, string>
 ) => {
-  const admins = await User.find({ role: "admin", fcmToken: { $ne: null } }).select("_id fcmToken");
-  for (const admin of admins) {
-    if (!admin.fcmToken) continue;
-    try {
-      await fcm.send({ token: admin.fcmToken, notification, data });
-    } catch (err: any) {
-      console.error(`FCM Error (admin ${admin._id}):`, err.message);
-      if (
-        err.code === "messaging/registration-token-not-registered" ||
-        err.message?.includes("SenderId mismatch") ||
-        err.code === "messaging/mismatched-credential"
-      ) {
-        await User.updateOne({ _id: admin._id }, { $unset: { fcmToken: "" } });
-      }
-    }
+  try {
+    await sendNotificationViaQueue({
+      notification,
+      data,
+      type: "ADMINS"
+    });
+  } catch (error) {
+    console.error("Error enqueuing FCM for admins:", error);
   }
 };
 

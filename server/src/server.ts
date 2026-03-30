@@ -12,6 +12,9 @@ import { initAuctionCron } from "./cron/auction.cron.js";
 import { initPaymentCron } from "./cron/payment.cron.js";
 import { initAdvertisementCron } from "./cron/advertisement.cron.js";
 import { logService } from "./services/log.service.js";
+import { startEmailWorker } from "./queues/email.queue.js";
+import { startNotificationWorker } from "./queues/notification.queue.js";
+import { bullBoardRouter } from "./config/bull-board.config.js";
 
 dotenv.config();
 
@@ -60,6 +63,9 @@ app.get("/test-firebase", async (req: Request, res: Response) => {
 // api routes
 app.use('/api', routes);
 
+// Bull-board Dashboard
+app.use('/admin/queues', bullBoardRouter);
+
 // Global Error Handler
 app.use(async (err: any, req: Request, res: Response, next: express.NextFunction) => {
   console.error("Global Error:", err);
@@ -83,5 +89,13 @@ app.use(async (err: any, req: Request, res: Response, next: express.NextFunction
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Server running on port ${PORT}`);
+  
+  // Start email worker if not disabled
+  const isWorkerDisabled = process.env.DISABLE_EMAIL_WORKER?.trim() === "true";
+  if (!isWorkerDisabled) {
+    startEmailWorker();
+    startNotificationWorker();
+  } else {
+    console.log("⏸️ Email Worker is DISABLED (Queue inspection mode)");
+  }
 });

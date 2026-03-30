@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "concurrently --names \"TSC,NODE\" --prefixColors \"blue,green\" \"tsc -b --watch --preserveWatchOutput\" \"nodemon\"",
     "build": "tsc -b",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "redis:inspect": "node --loader ts-node/esm ./tmp/inspect_redis.ts",
+    "redis:test-enqueue": "node --loader ts-node/esm ./tmp/test_enqueue.ts",
+    "dev:no-worker": "set DISABLE_EMAIL_WORKER=true&& npm run dev"
   },
   "repository": {
     "type": "git",
@@ -21,14 +24,21 @@
   },
   "homepage": "https://github.com/KunjKhimani/reyu-diamond-app#readme",
   "dependencies": {
+    "@bull-board/api": "^6.20.6",
+    "@bull-board/express": "^6.20.6",
     "bcryptjs": "^3.0.3",
+    "bull": "^4.16.5",
+    "bull-board": "^2.1.3",
+    "bullmq": "^5.71.1",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "firebase-admin": "^13.6.0",
+    "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
+    "lodash": "^4.17.23",
     "mongoose": "^9.1.4",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
@@ -42,6 +52,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/bull": "^3.15.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -52,9 +63,9 @@
     "@types/socket.io": "^3.0.1",
     "@types/validator": "^13.15.10",
     "concurrently": "^9.2.1",
+    "firebase-tools": "^15.3.1",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "firebase-tools": "^15.3.1"
+    "typescript": "^5.9.3"
   }
 }

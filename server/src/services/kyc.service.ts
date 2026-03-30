@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import KYC from "../models/kyc.model.js";
 import type { IKyc } from "../models/kyc.model.js";
 import User from "../models/User.model.js";
-import sendEmail from "../services/email.service.js";
+import { sendEmailViaQueue as sendEmail } from "../queues/email.queue.js";
 import { sendToAdminTemplate } from "../utils/email.template.js";
 
 export interface SubmitKycInput {
