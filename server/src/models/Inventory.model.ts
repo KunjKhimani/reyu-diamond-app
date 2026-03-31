@@ -1,6 +1,8 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export type InventoryStatus = "AVAILABLE" | "NOT_AVAILABLE" | "LISTED" | "SOLD" | "ON_MEMO";
+export type UploadStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+
 
 export interface IInventory extends Document {
   sellerId: mongoose.Types.ObjectId;
@@ -30,6 +32,7 @@ export interface IInventory extends Document {
   currency: string;
 
   status: InventoryStatus;
+  uploadStatus: UploadStatus;
   locked: boolean;
   images: string[];
   video?: string;
@@ -130,6 +133,12 @@ const inventorySchema = new mongoose.Schema<IInventory>(
       enum: ["AVAILABLE", "NOT_AVAILABLE", "LISTED", "SOLD", "ON_MEMO"],
       default: "AVAILABLE",
     },
+    uploadStatus: {
+      type: String,
+      enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED"],
+      default: "COMPLETED", // Default to completed for items already existing
+    },
+
 
     locked: {
       type: Boolean,

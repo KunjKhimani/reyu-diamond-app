@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import { connectDB } from "../config/db.js";
 import { startEmailWorker } from "./email.worker.js";
 import { startNotificationWorker } from "./notification.worker.js";
+import { startCloudinaryWorker } from "./cloudinary.worker.js";
+
 
 // 1. Load environment variables
 dotenv.config();
@@ -18,6 +20,8 @@ const initializeWorkers = async () => {
     // 3. Start all workers
     const emailWorker = startEmailWorker();
     const notificationWorker = startNotificationWorker();
+    const cloudinaryWorker = startCloudinaryWorker();
+
 
     console.log("🎉 All workers started successfully!");
 
@@ -26,6 +30,8 @@ const initializeWorkers = async () => {
       console.log(`\n${signal} received. Closing workers...`);
       await emailWorker.close();
       await notificationWorker.close();
+      await cloudinaryWorker.close();
+
       process.exit(0);
     };
 

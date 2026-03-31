@@ -1,13 +1,17 @@
 import mongoose from "mongoose";
 import type { IInventory } from "../models/Inventory.model.js";
 import Inventory from "../models/Inventory.model.js";
+import { addClodinaryJob } from "../queues/cloudinary.queue.js";
+import { getPublicIdFromUrl } from "../utils/cloudinary.util.js";
+
 
 export const createInventoryService = async (
     userId: string,
     barcode: string,
     inventoryData: Partial<IInventory>,
-    images: string[],
-    video?: string
+    images: string[] = [],
+    video?: string,
+    uploadStatus: "PENDING" | "COMPLETED" = "COMPLETED"
 ): Promise<IInventory> => {
 
     // Check for duplicates
@@ -45,6 +49,7 @@ export const createInventoryService = async (
         images,
         video,
         status: "AVAILABLE",
+        uploadStatus,
         locked: false,
         ...(inventoryData.description && {
             description: inventoryData.description,
@@ -206,5 +211,29 @@ export const deleteInventoryService = async (
         };
     }
 
+
+    // Queue Cloudinary image deletion in the background
+    if (inventory.images && inventory.images.length > 0) {
+      inventory.images.forEach((imageUrl: string) => {
+        const publicId = getPublicIdFromUrl(imageUrl);
+        if (publicId) {
+          addClodinaryJob({ action: "delete", publicId, resourceType: "image" }).catch((err) =>
+            console.error(`[DeleteInventory] Failed to queue image deletion for ${publicId}:`, err)
+          );
+        }
+      });
+    }
+
+    // Queue video deletion if present
+    if (inventory.video) {
+      const publicId = getPublicIdFromUrl(inventory.video);
+      if (publicId) {
+        addClodinaryJob({ action: "delete", publicId, resourceType: "video" }).catch((err) =>
+          console.error(`[DeleteInventory] Failed to queue video deletion for ${publicId}:`, err)
+        );
+      }
+    }
+
     return inventory;
+
 };

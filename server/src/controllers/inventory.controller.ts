@@ -5,6 +5,8 @@ import { generateUniqueBarcode } from "../utils/barcode.util.js";
 import { uploadToCloudinary } from "../services/cloudinary.service.js";
 import mongoose from "mongoose";
 import { checkAndNotifyRequirements } from "../services/notification.service.js";
+import { addClodinaryJob } from "../queues/cloudinary.queue.js";
+
 
 export const createInventory = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -12,21 +14,15 @@ export const createInventory = async (req: Request, res: Response, next: NextFun
 
     const barcode = await generateUniqueBarcode();
 
-    // Upload images and video if present
-    let imageUrls: string[] = [];
-    let videoUrl: string | undefined;
-
+    // Prepare media for background upload if present
+    const mediaToUpload: { path: string; fieldname: string; originalname: string }[] = [];
     if (req.files) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
       if (files.images) {
-        imageUrls = await Promise.all(
-          files.images.map((file) => uploadToCloudinary(file, "inventory/images"))
-        );
+        files.images.forEach(f => mediaToUpload.push({ path: f.path, fieldname: f.fieldname, originalname: f.originalname }));
       }
-
       if (files.video && files.video.length > 0) {
-        videoUrl = await uploadToCloudinary(files.video[0] as Express.Multer.File, "inventory/videos", "auto");
+        mediaToUpload.push({ path: files.video[0]!.path, fieldname: files.video[0]!.fieldname, originalname: files.video[0]!.originalname });
       }
     }
 
@@ -34,9 +30,20 @@ export const createInventory = async (req: Request, res: Response, next: NextFun
       userId,
       barcode,
       req.body,
-      imageUrls,
-      videoUrl
+      [], // Empty initially
+      undefined,
+      mediaToUpload.length > 0 ? "PENDING" : "COMPLETED"
     );
+
+    // If there are files, queue the background upload
+    if (mediaToUpload.length > 0) {
+      addClodinaryJob({
+        action: "upload_inventory_media",
+        inventoryId: inventory._id.toString(),
+        files: mediaToUpload,
+      }).catch((err: any) => console.error("[CreateInventory] Queue error:", err));
+    }
+
 
     // Check for matching requirements and notify users - nofification
     checkAndNotifyRequirements(inventory).catch((err: any) =>
@@ -50,8 +57,9 @@ export const createInventory = async (req: Request, res: Response, next: NextFun
       data: inventory,
       message: "Inventory created successfully",
     });
-  } catch (error) {
-    next(Object.assign(new Error("Failed to create inventory"), { statusCode: 500 }));
+    } catch (error: any) {
+    console.error("[CreateInventory] Error:", error);
+    next(Object.assign(new Error(error.message || "Failed to create inventory"), { statusCode: 500 }));
   }
 };
 
