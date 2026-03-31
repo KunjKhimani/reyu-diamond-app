@@ -1,19 +1,6 @@
 import { Queue } from "bullmq";
-import { redisConnection } from "../config/redis.config.js";
+import { DEFAULT_QUEUE_CONFIG } from "../config/queue.config.js";
 import type { CloudinaryJobData } from "../jobs/cloudinary.job.js";
-
-const DEFAULT_QUEUE_CONFIG = {
-  connection: redisConnection,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 5000,
-    },
-    removeOnComplete: true,
-    removeOnFail: false,
-  },
-};
 
 export const cloudinaryQueue = new Queue("cloudinary_queue", DEFAULT_QUEUE_CONFIG);
 
