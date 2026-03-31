@@ -14,16 +14,20 @@ export interface CloudinaryJobData {
   files?: { path: string; fieldname: string; originalname: string }[];
 }
 
-export const processCloudinaryJob = async (data: CloudinaryJobData): Promise<void> => {
+export const processCloudinaryJob = async (data: CloudinaryJobData, attempts: number = 0): Promise<void> => {
   const { action, publicId, resourceType, url, folder, inventoryId, files } = data;
-  console.log(`[CloudinaryJob] Processing action: ${action}`);
+  console.log(`[CloudinaryJob] Processing action: ${action} (Attempt ${attempts + 1})`);
 
   try {
     switch (action) {
       case "delete":
         if (!publicId) throw new Error("publicId is required for delete action");
+        // 🧪 TEMPORARY TEST TRIGGER
+        if (publicId === "FAIL_TEST") {
+          throw new Error("Simulated cloudinary failure for retry testing");
+        }
         await deleteFromCloudinary(publicId, resourceType || "image");
-        console.log(`[CloudinaryJob] Successfully deleted: ${publicId}`);
+        console.log(`[CloudinaryJob] Successfully deleted: ${publicId} `);
         break;
 
       case "upload_inventory_media":

@@ -3,6 +3,7 @@ import { DEFAULT_QUEUE_CONFIG } from "../config/queue.config.js";
 import type { CloudinaryJobData } from "../jobs/cloudinary.job.js";
 
 export const cloudinaryQueue = new Queue("cloudinary_queue", DEFAULT_QUEUE_CONFIG);
+export const deadCloudinaryQueue = new Queue("dead_cloudinary_queue", DEFAULT_QUEUE_CONFIG);
 
 export const addClodinaryJob = async (data: CloudinaryJobData) => {
   try {

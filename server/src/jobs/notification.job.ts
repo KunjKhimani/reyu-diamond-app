@@ -9,12 +9,20 @@ export interface NotificationJobData {
   };
   data: Record<string, string>;
   type: "SINGLE" | "ADMINS";
+  attemptsMade?: number;
 }
 
-export const processNotificationJob = async (jobData: NotificationJobData): Promise<void> => {
+export const processNotificationJob = async (jobData: NotificationJobData, attemptsMade: number = 0): Promise<void> => {
   const { userId, notification, data, type } = jobData;
+  console.log(`[NotificationJob] Processing notification for ${type} user ${userId} (Attempt ${attemptsMade + 1})`);
+
+  // 🧪 TEMPORARY TEST TRIGGER
+  if (notification.title === "FAIL_TEST") {
+    throw new Error("Simulated notification failure for retry testing");
+  }
 
   try {
+
     if (type === "SINGLE" && userId) {
       // 1. Send via FCM to a single user
       const user = await User.findById(userId).select("fcmToken");

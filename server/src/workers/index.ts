@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 import { connectDB } from "../config/db.js";
-import { startEmailWorker } from "./email.worker.js";
-import { startNotificationWorker } from "./notification.worker.js";
-import { startCloudinaryWorker } from "./cloudinary.worker.js";
-
+import { startEmailWorker, startDeadEmailWorker } from "./email.worker.js";
+import { startNotificationWorker, startDeadNotificationWorker } from "./notification.worker.js";
+import { startCloudinaryWorker, startDeadCloudinaryWorker } from "./cloudinary.worker.js";
 
 // 1. Load environment variables
 dotenv.config();
@@ -18,19 +17,32 @@ const initializeWorkers = async () => {
     console.log("✅ Database connected for Worker process");
 
     // 3. Start all workers
+    // email
     const emailWorker = startEmailWorker();
-    const notificationWorker = startNotificationWorker();
-    const cloudinaryWorker = startCloudinaryWorker();
+    const deadEmailWorker = startDeadEmailWorker();
 
+    // notification
+    const notificationWorker = startNotificationWorker();
+    const deadNotificationWorker = startDeadNotificationWorker();
+    
+    // cloudinary
+    const cloudinaryWorker = startCloudinaryWorker();
+    const deadCloudinaryWorker = startDeadCloudinaryWorker();
 
     console.log("🎉 All workers started successfully!");
 
     // Graceful shutdown
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n${signal} received. Closing workers...`);
+
       await emailWorker.close();
+      await deadEmailWorker.close();
+      
       await notificationWorker.close();
+      await deadNotificationWorker.close();
+      
       await cloudinaryWorker.close();
+      await deadCloudinaryWorker.close();
 
       process.exit(0);
     };

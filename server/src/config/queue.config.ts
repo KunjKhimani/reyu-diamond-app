@@ -3,7 +3,7 @@ import { redisConnection } from "./redis.config.js";
 export const DEFAULT_QUEUE_CONFIG = {
   connection: redisConnection,
   defaultJobOptions: {
-    attempts: 3,
+    attempts: 5,
     backoff: {
       type: "exponential" as const,
       delay: 5000,

@@ -2,8 +2,8 @@ import { Queue } from "bullmq";
 import { DEFAULT_QUEUE_CONFIG } from "../config/queue.config.js";
 import type { NotificationJobData } from "../jobs/notification.job.js";
 
-
 export const notificationQueue = new Queue("notification_queue", DEFAULT_QUEUE_CONFIG);
+export const deadNotificationQueue = new Queue("dead_notification_queue", DEFAULT_QUEUE_CONFIG);
 
 /**
  * Producer: Function to enqueue an FCM notification job
