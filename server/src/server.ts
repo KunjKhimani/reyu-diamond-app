@@ -12,6 +12,8 @@ import { initAuctionCron } from "./cron/auction.cron.js";
 import { initPaymentCron } from "./cron/payment.cron.js";
 import { initAdvertisementCron } from "./cron/advertisement.cron.js";
 import { logService } from "./services/log.service.js";
+import { addRepeatableJob } from "./queues/scheduled.queue.js";
+import { boardRouter } from "./config/queue-dashboard.config.js";
 
 dotenv.config();
 
@@ -59,6 +61,7 @@ app.get("/test-firebase", async (req: Request, res: Response) => {
 
 // api routes
 app.use('/api', routes);
+app.use('/admin/queues', boardRouter);
 
 // Global Error Handler
 app.use(async (err: any, req: Request, res: Response, next: express.NextFunction) => {

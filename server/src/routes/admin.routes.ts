@@ -4,9 +4,11 @@ import { reviewKyc, getAllKyc } from "../controllers/admin-kyc.controller.js";
 import { updateUserStatus, getUsers, getActionBidsByUserId, getAllBidsOfUser, getAllRatingsAndBadges } from "../controllers/admin-user.controller.js";
 import isAdmin from "../middlewares/admin.middleware.js";
 
-const router = Router();
 
+const router = Router();
 router.use(authMiddleware, isAdmin);
+
+// dashboard routes moved to server.ts
 
 // kyc routes
 router.patch("/kyc/:userId", reviewKyc);

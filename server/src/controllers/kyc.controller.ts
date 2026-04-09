@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import sendResponse from "../utils/api.response.js";
+import { sendDelayedEmail } from "../utils/delayedMailer.js";
+import User from "../models/User.model.js";
 import { uploadToCloudinaryDetails } from "../services/cloudinary.service.js";
 import { notifyAdminsForKyc } from "../services/notification.service.js";
 import {
@@ -110,6 +112,17 @@ export const submitKyc = async (req: Request, res: Response, next: NextFunction)
     });
 
     await notifyAdminsForKyc(userId);
+    const user = await User.findById(userId);
+
+    if (user) {
+      // Send delayed email after 3 minutes for Cloudinary upload step
+      await sendDelayedEmail({
+        to: user.email,
+        subject: "KYC Documents Received",
+        html: `<h1>Hello, ${user.username}!</h1><p>We have successfully received your KYC documents. This is a confirmation sent 3 minutes after your upload.</p>`
+      }, 3);
+    }
+
     await sendMailToAllAdmins(userId);
 
     return sendResponse({

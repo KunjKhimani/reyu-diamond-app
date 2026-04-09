@@ -7,11 +7,21 @@ export const deadEmailQueue = new Queue("dead_email_queue", DEFAULT_QUEUE_CONFIG
 
 /**
  * Producer: Standard function to add an email job to the queue.
+ * @param data Email to send
+ * @param delay Optional delay in milliseconds (e.g., 600000 for 10 minutes)
  */
-export const addEmailJob = async (data: EmailJobData) => {
+export const addEmailJob = async (data: EmailJobData, delay?: number) => {
   try {
-    const job = await emailQueue.add("send_email", data);
-    console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to}`);
+    const job = await emailQueue.add("send_email", data, {
+      delay: delay || 0,
+    });
+    
+    if (delay) {
+      console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to} with ${delay}ms delay`);
+    } else {
+      console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to}`);
+    }
+    
     return job;
   } catch (error) {
     console.error("[EmailQueue] Error enqueuing job:", error);

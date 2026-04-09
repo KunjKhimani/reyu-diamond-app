@@ -12,6 +12,8 @@ import {
 } from "../services/auth.service.js";
 import sendResponse from "../utils/api.response.js";
 import { logService } from "../services/log.service.js";
+import { sendDelayedEmail } from "../utils/delayedMailer.js";
+
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -57,6 +59,13 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
     const user = await verifyUserOtp({ email, otp });
 
     const token = sendToken(user._id.toString());
+    
+    // Send delayed welcome email after 5 minutes
+    await sendDelayedEmail({
+      to: user.email,
+      subject: "Welcome to the Reyu Diamond Trading Platform!",
+      html: `<h1>Welcome, ${user.username}!</h1><p>We're thrilled to have you join our platform. This is a quick check-in 5 minutes after your verification.</p>`
+    }, 5);
 
     return sendResponse({
       res,

@@ -3,6 +3,8 @@ import { connectDB } from "../config/db.js";
 import { startEmailWorker, startDeadEmailWorker } from "./email.worker.js";
 import { startNotificationWorker, startDeadNotificationWorker } from "./notification.worker.js";
 import { startCloudinaryWorker, startDeadCloudinaryWorker } from "./cloudinary.worker.js";
+import { startScheduledWorker } from "./scheduled.worker.js";
+
 
 // 1. Load environment variables
 dotenv.config();
@@ -29,6 +31,10 @@ const initializeWorkers = async () => {
     const cloudinaryWorker = startCloudinaryWorker();
     const deadCloudinaryWorker = startDeadCloudinaryWorker();
 
+    // scheduled tasks
+    const scheduledWorker = startScheduledWorker();
+
+
     console.log("🎉 All workers started successfully!");
 
     // Graceful shutdown
@@ -43,6 +49,9 @@ const initializeWorkers = async () => {
       
       await cloudinaryWorker.close();
       await deadCloudinaryWorker.close();
+      
+      await scheduledWorker.close();
+
 
       process.exit(0);
     };

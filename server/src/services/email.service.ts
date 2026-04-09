@@ -8,9 +8,9 @@ interface SendEmailOptions {
 }
 
 const sendEmail = async ({ to, subject, html, attempts = 0 }: SendEmailOptions): Promise<void> => {
-  if (to === "kunjkhimani13@gmail.com" && attempts < 4) {
-    throw new Error(`Simulated failure (Attempt ${attempts + 1}/5)`);
-  }
+  // if (to === "kunjkhimani13@gmail.com" && attempts < 4) {
+  //   throw new Error(`Simulated failure (Attempt ${attempts + 1}/5)`);
+  // }
 
   await transporter.sendMail({
     from: `"Reyu Diamond" <${process.env.SENDER_EMAIL}>`,

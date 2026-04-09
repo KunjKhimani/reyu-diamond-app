@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { Cloudinary } from "../config/cloudinary.config.js";
+import fs from "fs";
 
 export async function uploadToCloudinary(
   file: Express.Multer.File,
@@ -26,20 +27,46 @@ export async function uploadToCloudinaryDetails(
   );
 
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: resourceType,
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        if (!result?.secure_url || !result?.public_id)
-          return reject(new Error("Cloudinary upload failed"));
-        resolve({ secure_url: result.secure_url, public_id: result.public_id });
-      }
-    );
+    // 1. Handle Memory Storage (Buffer)
+    if (file.buffer) {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: resourceType,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          if (!result?.secure_url || !result?.public_id)
+            return reject(new Error("Cloudinary upload failed"));
+          resolve({ secure_url: result.secure_url, public_id: result.public_id });
+        }
+      );
+      stream.end(file.buffer);
+    } 
+    // 2. Handle Disk Storage (Path)
+    else if (file.path) {
+      cloudinary.uploader.upload(
+        file.path,
+        {
+          folder,
+          resource_type: resourceType,
+        },
+        (error, result) => {
+          // Cleanup disk file regardless of success/error
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
 
-    stream.end(file.buffer);
+          if (error) return reject(error);
+          if (!result?.secure_url || !result?.public_id)
+            return reject(new Error("Cloudinary upload failed"));
+          
+          resolve({ secure_url: result.secure_url, public_id: result.public_id });
+        }
+      );
+    } else {
+      reject(new Error("File content is missing (no buffer or path found)"));
+    }
   });
 }
 
