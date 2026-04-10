@@ -1,6 +1,14 @@
 import type { Request, Response, NextFunction } from "express"
 import sendResponse from "../utils/api.response.js"
-import { createInventoryService, getAllInventoriesService, updateInventoryService, findInventoryById, deleteInventoryService } from "../services/inventory.service.js"
+import { 
+  createInventoryService, 
+  getAllInventoriesService, 
+  updateInventoryService, 
+  findInventoryById, 
+  deleteInventoryService,
+  processBulkUploadFile,
+  getBulkStatusService
+} from "../services/inventory.service.js"
 import { generateUniqueBarcode } from "../utils/barcode.util.js";
 import { uploadToCloudinary } from "../services/cloudinary.service.js";
 import mongoose from "mongoose";
@@ -161,3 +169,54 @@ export const deleteInventory = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 }
+
+export const bulkUploadInventory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id;
+    const file = req.file;
+    console.log("[BulkController] Upload request received. File:", file?.originalname, "Fieldname:", file?.fieldname);
+
+    if (!file) {
+      throw {
+        statusCode: 400,
+        message: "No file uploaded"
+      };
+    }
+
+    const header = await processBulkUploadFile(userId, file.originalname, file.path);
+
+    return sendResponse({
+      res,
+      statusCode: 202, // Accepted
+      success: true,
+      data: {
+        bulkId: header.bulkId,
+        status: header.uploadStatus
+      },
+      message: "Bulk upload started successfully"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getBulkUploadStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params as { id: string };
+    if (!id) {
+        throw { statusCode: 400, message: "Bulk ID is required" };
+    }
+
+    const status = await getBulkStatusService(id);
+
+    return sendResponse({
+      res,
+      statusCode: 200,
+      success: true,
+      data: status,
+      message: "Bulk upload status retrieved successfully"
+    });
+  } catch (error) {
+    next(error);
+  }
+};

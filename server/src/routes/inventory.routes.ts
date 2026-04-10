@@ -6,6 +6,8 @@ import {
   updateInventory,
   deleteInventory,
   getInventoryById,
+  bulkUploadInventory,
+  getBulkUploadStatus,
 } from "../controllers/inventory.controller.js";
 import { kycVerifiedOnly } from "../middlewares/kyc.middleware.js";
 import { loadUserRole, ownerOrAdmin } from "../middlewares/permission.middleware.js";
@@ -44,6 +46,20 @@ router.delete(
   loadUserRole,
   ownerOrAdmin(Inventory, "sellerId", "id"),
   deleteInventory
+);
+
+router.post(
+  "/bulk-upload",
+  protect,
+  kycVerifiedOnly,
+  upload.single("file"),
+  bulkUploadInventory
+);
+
+router.get(
+  "/bulk-status/:id",
+  protect,
+  getBulkUploadStatus
 );
 
 export default router;

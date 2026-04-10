@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import type { IInventory } from "../models/Inventory.model.js";
 import Inventory from "../models/Inventory.model.js";
 import { addClodinaryJob } from "../queues/cloudinary.queue.js";
+import { addBulkInventoryJob } from "../queues/bulk-inventory.queue.js";
 import { getPublicIdFromUrl } from "../utils/cloudinary.util.js";
 
 
@@ -236,4 +237,50 @@ export const deleteInventoryService = async (
 
     return inventory;
 
+};
+
+export const processBulkUploadFile = async (
+    userId: string,
+    fileName: string,
+    filePath: string
+) => {
+    const bulkId = `BULK-${Date.now()}`;
+
+    // Create a "Header" record in the Inventory collection
+    const headerRecord = await Inventory.create({
+        sellerId: new mongoose.Types.ObjectId(userId),
+        barcode: bulkId, // Unique barcode for the header
+        isBulkHeader: true,
+        bulkId,
+        uploadStatus: "PENDING",
+        bulkMetadata: {
+            fileName,
+            totalItems: 0,
+            processedCount: 0,
+            successCount: 0,
+            failureCount: 0,
+            errors: []
+        }
+    });
+
+    // Enqueue the job
+    console.log("[BulkService] Enqueuing job for bulkId:", bulkId);
+    await addBulkInventoryJob({
+        bulkId,
+        sellerId: userId,
+        filePath
+    });
+
+    return headerRecord;
+};
+
+export const getBulkStatusService = async (bulkId: string) => {
+    const header = await Inventory.findOne({ bulkId, isBulkHeader: true });
+    if (!header) {
+        throw {
+            statusCode: 404,
+            message: "Bulk upload process not found"
+        };
+    }
+    return header;
 };

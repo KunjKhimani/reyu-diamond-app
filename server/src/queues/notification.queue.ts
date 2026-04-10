@@ -10,7 +10,15 @@ export const deadNotificationQueue = new Queue("dead_notification_queue", DEFAUL
  */
 export const sendNotificationViaQueue = async (data: NotificationJobData) => {
   try {
-    const job = await notificationQueue.add("send_fcm_notification", data);
+    const job = await notificationQueue.add("send_fcm_notification", data, {
+      removeOnComplete: {
+        count: 100, // Keep last 100 completed jobs
+        age: 24 * 3600, // Or keep for 24 hours
+      },
+      removeOnFail: {
+        count: 500, // Keep failed jobs for manual review
+      }
+    });
     console.log(`[NotificationQueue] FCM Job enqueued: ${job.id} for type ${data.type}`);
     return job;
   } catch (error) {

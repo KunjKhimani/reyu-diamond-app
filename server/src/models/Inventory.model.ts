@@ -6,15 +6,15 @@ export type UploadStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export interface IInventory extends Document {
   sellerId: mongoose.Types.ObjectId;
-  title: string;
+  title?: string;
   description?: string;
   barcode: string;
 
-  carat: number;
-  cut: "EXCELLENT" | "VERY_GOOD" | "GOOD" | "FAIR" | "POOR";
-  color: "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M";
-  clarity: "FL" | "IF" | "VVS1" | "VVS2" | "VS1" | "VS2" | "SI1" | "SI2" | "I1";
-  shape:
+  carat?: number;
+  cut?: "EXCELLENT" | "VERY_GOOD" | "GOOD" | "FAIR" | "POOR";
+  color?: "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M";
+  clarity?: "FL" | "IF" | "VVS1" | "VVS2" | "VS1" | "VS2" | "SI1" | "SI2" | "I1";
+  shape?:
   | "ROUND"
   | "PRINCESS"
   | "CUSHION"
@@ -26,16 +26,28 @@ export interface IInventory extends Document {
   | "HEART"
   | "PEAR";
 
-  lab: string;
-  location: string;
-  price: number;
-  currency: string;
+  lab?: string;
+  location?: string;
+  price?: number;
+  currency?: string;
 
   status: InventoryStatus;
   uploadStatus: UploadStatus;
   locked: boolean;
   images: string[];
   video?: string;
+
+  // Bulk Process Fields
+  isBulkHeader: boolean;
+  bulkId?: string;
+  bulkMetadata?: {
+    fileName: string;
+    totalItems: number;
+    processedCount: number;
+    successCount: number;
+    failureCount: number;
+    errors: Array<{ row: number; error: string }>;
+  };
 }
 
 const inventorySchema = new mongoose.Schema<IInventory>(
@@ -49,7 +61,6 @@ const inventorySchema = new mongoose.Schema<IInventory>(
 
     title: {
       type: String,
-      required: true,
       trim: true,
     },
 
@@ -67,7 +78,6 @@ const inventorySchema = new mongoose.Schema<IInventory>(
 
     carat: {
       type: Number,
-      required: true,
       min: 0.01,
       max: 100,
     },
@@ -75,19 +85,16 @@ const inventorySchema = new mongoose.Schema<IInventory>(
     cut: {
       type: String,
       enum: ["EXCELLENT", "VERY_GOOD", "GOOD", "FAIR", "POOR"],
-      required: true,
     },
 
     color: {
       type: String,
       enum: ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"],
-      required: true,
     },
 
     clarity: {
       type: String,
       enum: ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1"],
-      required: true,
     },
 
     shape: {
@@ -104,27 +111,22 @@ const inventorySchema = new mongoose.Schema<IInventory>(
         "HEART",
         "PEAR",
       ],
-      required: true,
     },
 
     lab: {
       type: String,
-      required: true,
     },
 
     location: {
       type: String,
-      required: true,
     },
 
     price: {
       type: Number,
-      required: true,
     },
 
     currency: {
       type: String,
-      required: true,
       default: "USD",
     },
 
@@ -136,9 +138,8 @@ const inventorySchema = new mongoose.Schema<IInventory>(
     uploadStatus: {
       type: String,
       enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED"],
-      default: "COMPLETED", // Default to completed for items already existing
+      default: "COMPLETED",
     },
-
 
     locked: {
       type: Boolean,
@@ -152,6 +153,29 @@ const inventorySchema = new mongoose.Schema<IInventory>(
 
     video: {
       type: String,
+    },
+
+    // Bulk Fields Implementation
+    isBulkHeader: {
+      type: Boolean,
+      default: false,
+    },
+    bulkId: {
+      type: String,
+      index: true,
+    },
+    bulkMetadata: {
+      fileName: String,
+      totalItems: { type: Number, default: 0 },
+      processedCount: { type: Number, default: 0 },
+      successCount: { type: Number, default: 0 },
+      failureCount: { type: Number, default: 0 },
+      errors: [
+        {
+          row: Number,
+          error: String,
+        },
+      ],
     },
   },
   { timestamps: true }

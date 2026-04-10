@@ -19,6 +19,13 @@ export const addRepeatableJob = async (name: string, data: any, cron: string) =>
       repeat: {
         pattern: cron,
       },
+      removeOnComplete: {
+        count: 50, // Keep last 50 completed instances of this repeatable job
+        age: 24 * 3600,
+      },
+      removeOnFail: {
+        count: 100,
+      }
     });
     console.log(`[ScheduledQueue] Registered repeatable job: ${name} with pattern: ${cron}`);
     return job;

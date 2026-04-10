@@ -14,6 +14,13 @@ export const addClodinaryJob = async (data: CloudinaryJobData, delay?: number) =
   try {
     const job = await cloudinaryQueue.add("cloudinary_process", data, {
       delay: delay || 0,
+      removeOnComplete: {
+        count: 100, // Keep last 100 completed jobs
+        age: 24 * 3600, // Or keep for 24 hours
+      },
+      removeOnFail: {
+        count: 500, // Keep failed jobs for manual review
+      }
     });
     
     if (delay) {

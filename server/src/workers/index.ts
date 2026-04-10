@@ -4,6 +4,7 @@ import { startEmailWorker, startDeadEmailWorker } from "./email.worker.js";
 import { startNotificationWorker, startDeadNotificationWorker } from "./notification.worker.js";
 import { startCloudinaryWorker, startDeadCloudinaryWorker } from "./cloudinary.worker.js";
 import { startScheduledWorker } from "./scheduled.worker.js";
+import { startBulkInventoryWorker } from "./bulk-inventory.worker.js";
 
 
 // 1. Load environment variables
@@ -34,6 +35,8 @@ const initializeWorkers = async () => {
     // scheduled tasks
     const scheduledWorker = startScheduledWorker();
 
+    // bulk inventory
+    const bulkWorker = startBulkInventoryWorker();
 
     console.log("🎉 All workers started successfully!");
 
@@ -51,6 +54,7 @@ const initializeWorkers = async () => {
       await deadCloudinaryWorker.close();
       
       await scheduledWorker.close();
+      await bulkWorker.close();
 
 
       process.exit(0);
