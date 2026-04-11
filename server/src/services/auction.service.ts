@@ -41,7 +41,7 @@ export const createAuctionService = async ({
         if (inventory.status !== "AVAILABLE") {
             throw new Error("Inventory must be AVAILABLE to create auction");
         }
-        if (inventory.price > basePrice) {
+        if (inventory.price !== undefined && inventory.price > basePrice) {
             throw new Error("Base price must be greater than inventory price");
         }
 

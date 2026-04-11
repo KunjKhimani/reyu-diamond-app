@@ -15,7 +15,10 @@ export type SystemEventType =
     | "DATABASE_ERROR" 
     | "AUTH_FAILURE"
     | "UNAUTHORIZED_ACCESS_ATTEMPT"
-    | "SYSTEM_EXCEPTION";
+    | "SYSTEM_EXCEPTION"
+    | "JOB_COMPLETED"
+    | "JOB_FAILED"
+    | "JOB_MOVED_TO_DLQ";
 
 export interface ISystemLog extends Document {
     eventType: SystemEventType;
@@ -40,7 +43,10 @@ const SystemLogSchema = new Schema<ISystemLog>(
                 "DATABASE_ERROR",
                 "AUTH_FAILURE",
                 "UNAUTHORIZED_ACCESS_ATTEMPT",
-                "SYSTEM_EXCEPTION"
+                "SYSTEM_EXCEPTION",
+                "JOB_COMPLETED",
+                "JOB_FAILED",
+                "JOB_MOVED_TO_DLQ"
             ],
             required: true,
             index: true

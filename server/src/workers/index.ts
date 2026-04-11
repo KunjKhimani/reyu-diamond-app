@@ -44,20 +44,34 @@ const initializeWorkers = async () => {
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n${signal} received. Closing workers...`);
 
-      await emailWorker.close();
-      await deadEmailWorker.close();
-      
-      await notificationWorker.close();
-      await deadNotificationWorker.close();
-      
-      await cloudinaryWorker.close();
-      await deadCloudinaryWorker.close();
-      
-      await scheduledWorker.close();
-      await bulkWorker.close();
+      // Set a terminal timeout to force exit if workers take too long to close
+      const forceExitTimeout = setTimeout(() => {
+        console.warn("⚠️ Forced shutdown initiated after timeout.");
+        process.exit(1);
+      }, 10000); // 10 seconds
 
+      try {
+        // Stop accepting new jobs and wait for current ones to finish
+        await Promise.all([
+          emailWorker.close(),
+          deadEmailWorker.close(),
+          notificationWorker.close(),
+          deadNotificationWorker.close(),
+          cloudinaryWorker.close(),
+          deadCloudinaryWorker.close(),
+          scheduledWorker.close(),
+          bulkWorker.close(),
+        ]);
 
-      process.exit(0);
+        console.log("✅ All workers closed gracefully.");
+        
+        // Clear the timeout
+        clearTimeout(forceExitTimeout);
+        process.exit(0);
+      } catch (err) {
+        console.error("❌ Error during graceful shutdown:", err);
+        process.exit(1);
+      }
     };
 
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));

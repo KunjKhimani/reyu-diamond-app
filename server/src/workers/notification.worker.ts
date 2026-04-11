@@ -2,6 +2,7 @@ import { Worker, Job } from "bullmq";
 import { redisConnection } from "../config/redis.config.js";
 import { processNotificationJob, type NotificationJobData } from "../jobs/notification.job.js";
 import { deadNotificationQueue } from "../queues/notification.queue.js";
+import { logService } from "../services/log.service.js";
 
 /**
  * Worker: Listens for jobs on 'notification_queue' and processes them.
@@ -12,10 +13,21 @@ export const startNotificationWorker = () => {
     async (job: Job) => {
       console.log(`[NotificationWorker] Processing job ${job.id}`);
       await processNotificationJob(job.data, job.attemptsMade);
+
+      // Log completion
+      await logService.createSystemLog({
+        eventType: "JOB_COMPLETED",
+        severity: "INFO",
+        message: `Notification sent successfully: ${job.data.title}`,
+        targetId: job.id as any,
+        meta: { jobId: job.id, type: job.data.type, userId: job.data.userId }
+      });
     },
     {
       connection: redisConnection,
       concurrency: 10,
+      lockDuration: 45000,   // 45 seconds for FCM retries/responses
+      stalledInterval: 25000,
     }
   );
 
@@ -31,6 +43,15 @@ export const startNotificationWorker = () => {
 
     console.error(`[NotificationWorker] ❌ Job ${job.id} failed (Attempt ${attempts}/${maxAttempts}): ${err.message}`);
 
+    // Log failure
+    await logService.createSystemLog({
+      eventType: "JOB_FAILED",
+      severity: attempts >= maxAttempts ? "CRITICAL" : "ERROR",
+      message: `Notification job ${job.id} failed: ${err.message}`,
+      targetId: job.id as any,
+      meta: { jobId: job.id, type: job.data.type, userId: job.data.userId, attempt: attempts, maxAttempts, stack: err.stack }
+    });
+
     // If max retries reached, move to Dead Letter Queue (DLQ)
     if (attempts >= maxAttempts) {
       console.log(`[NotificationWorker] ☠️ Moving job ${job.id} to Dead Letter Queue (DLQ) after ${attempts} failures.`);
@@ -42,8 +63,15 @@ export const startNotificationWorker = () => {
         stackTrace: err.stack,
         timestamp: new Date().toISOString(),
       });
+
+      await logService.createSystemLog({
+        eventType: "JOB_MOVED_TO_DLQ",
+        severity: "CRITICAL",
+        message: `Notification job ${job.id} moved to DLQ`,
+        targetId: job.id as any,
+        meta: { jobId: job.id, type: job.data.type }
+      });
     }
-    console.error(`[NotificationWorker] Job ${job?.id} failed:`, err.message);
   });
 
   console.log("🚀 Notification Worker is ready!");

@@ -8,7 +8,13 @@ export const DEFAULT_QUEUE_CONFIG = {
       type: "exponential" as const,
       delay: 5000,
     },
-    removeOnComplete: true, // Clean up completed jobs
-    removeOnFail: false, // Keep failed jobs for manual review if needed
+    removeOnComplete: {
+      count: 100, // Keep last 100 completed jobs
+      age: 24 * 3600, // Or keep for 24 hours
+    },
+    removeOnFail: {
+      count: 100, // Keep last 100 failed jobs for manual review
+      age: 7 * 24 * 3600, // Keep for 7 days
+    },
   },
 };

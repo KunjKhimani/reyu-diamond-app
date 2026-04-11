@@ -135,8 +135,8 @@ export const checkAndNotifyRequirements = async (inventory: IInventory) => {
       color: inventory.color,
       clarity: inventory.clarity,
       carat: { $lte: inventory.carat },
-      budget: { $gte: inventory.price }
-    }).select("userId");
+      budget: { $gte: inventory.price as number }
+    } as any).select("userId");
 
     for (const req of matchingRequirements) {
       const userId = req.userId.toString();
