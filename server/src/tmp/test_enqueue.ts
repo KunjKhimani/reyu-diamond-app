@@ -16,6 +16,10 @@ async function testEnqueue() {
     await sendEmailViaQueue(testData);
     console.log("✅ Successfully enqueued to Redis.");
     
+    console.log("\n TIPS:");
+    console.log("- Run 'npm run redis:inspect' to see the queued data.");
+    console.log("- Ensure your server ('npm run dev') is running to process this email.");
+    
     // Disconnect to exit cleanly
     const { redis } = await import("../config/redis.config.js");
     redis.disconnect();
