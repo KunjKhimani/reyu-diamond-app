@@ -13,6 +13,11 @@ export const startBulkInventoryWorker = () => {
     },
     {
       ...DEFAULT_QUEUE_CONFIG,
+      concurrency: 1, 
+      limiter: {
+        max: 1,
+        duration: 5000
+      }
     }
   );
 

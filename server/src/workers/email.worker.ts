@@ -1,4 +1,4 @@
-import { Worker, Job } from "bullmq";
+ import { Worker, Job } from "bullmq";
 import { redisConnection } from "../config/redis.config.js";
 import { processEmailJob, type EmailJobData } from "../jobs/email.job.js";
 import { deadEmailQueue } from "../queues/email.queue.js";
@@ -16,6 +16,10 @@ export const startEmailWorker = () => {
     {
       connection: redisConnection,
       concurrency: 5,
+      limiter: {
+        max: 5,        // Max 5 emails
+        duration: 2000 // Per 2 seconds
+      }
     }
   );
 

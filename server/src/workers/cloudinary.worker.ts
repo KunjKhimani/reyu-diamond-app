@@ -16,6 +16,10 @@ export const startCloudinaryWorker = () => {
     {
       connection: redisConnection,
       concurrency: 5, // Cloudinary operations are somewhat slow, keep concurrency low
+      limiter: {
+        max: 10,       // Max 10 requests
+        duration: 5000 // Per 5 seconds (be conservative with media uploads)
+      }
     }
   );
 

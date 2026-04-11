@@ -1,6 +1,8 @@
 import { Worker, Job } from "bullmq";
 import { redisConnection } from "../config/redis.config.js";
 
+import { cleanupService } from "../services/cleanup.service.js";
+
 /**
  * Scheduled Worker: Processes tasks from 'scheduled_queue'.
  */
@@ -12,8 +14,7 @@ export const startScheduledWorker = () => {
       
       switch (job.name) {
         case "daily_cleanup":
-          console.log("[ScheduledWorker] Running system cleanup...");
-          // Add your cleanup logic here (e.g., delete old logs, temporary files)
+          await cleanupService.performDailyCleanup();
           break;
           
         default:

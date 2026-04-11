@@ -84,6 +84,13 @@ app.use(async (err: any, req: Request, res: Response, next: express.NextFunction
 
 // Start server
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+
+  // Register Daily Cleanup Job (Every midnight)
+  try {
+    await addRepeatableJob("daily_cleanup", {}, "0 0 * * *");
+  } catch (error) {
+    console.error("Failed to schedule daily cleanup job:", error);
+  }
 });

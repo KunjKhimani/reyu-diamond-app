@@ -38,6 +38,8 @@ export const processCloudinaryJob = async (data: CloudinaryJobData, attempts: nu
         const imageUrls: string[] = [];
         let videoUrl: string | undefined;
 
+        let hasFailure = false;
+
         for (const file of files) {
           try {
             const isVideo = file.fieldname === "video";
@@ -46,21 +48,25 @@ export const processCloudinaryJob = async (data: CloudinaryJobData, attempts: nu
               isVideo ? "inventory/videos" : "inventory/images",
               isVideo ? "video" : "image"
             );
-            
+
             if (isVideo) {
               videoUrl = uploadResult.secure_url;
             } else {
               imageUrls.push(uploadResult.secure_url);
             }
 
-            // Delete local file after upload
             if (fs.existsSync(file.path)) {
               fs.unlinkSync(file.path);
             }
+
           } catch (uploadErr) {
             console.error(`[CloudinaryJob] Failed to upload file ${file.path}:`, uploadErr);
-            // Even if one fails, we continue with others
+            hasFailure = true;
           }
+        }
+
+        if (hasFailure) {
+          throw new Error("One or more file uploads failed"); // ✅ THIS triggers retry
         }
 
         // Update database with final URLs

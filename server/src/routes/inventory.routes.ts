@@ -16,6 +16,7 @@ import { validate } from "../middlewares/validation.middleware.js";
 import { createInventorySchema, updateInventorySchema } from "../validation/inventory.validation.js";
 import upload from "../middlewares/upload.middleware.js";
 
+
 const router = Router();
 
 router.post(
