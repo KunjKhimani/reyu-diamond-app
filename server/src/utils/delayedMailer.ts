@@ -9,7 +9,7 @@ import type { EmailJobData } from "../jobs/email.job.js";
 export const sendDelayedEmail = async (data: EmailJobData, minutes: number = 10) => {
   const delayMs = minutes * 60 * 1000;
   console.log(`[DelayedMailer] Scheduling email to ${data.to} in ${minutes} minutes.`);
-  return await addEmailJob(data, delayMs);
+  return await addEmailJob(data, { delay: delayMs });
 };
 
 /**

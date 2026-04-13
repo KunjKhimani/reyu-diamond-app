@@ -1,4 +1,4 @@
-import { Queue } from "bullmq";
+import { Queue, type JobsOptions } from "bullmq";
 import { DEFAULT_QUEUE_CONFIG } from "../config/queue.config.js";
 import type { EmailJobData } from "../jobs/email.job.js";
 
@@ -7,21 +7,12 @@ export const deadEmailQueue = new Queue("dead_email_queue", DEFAULT_QUEUE_CONFIG
 
 /**
  * Producer: Standard function to add an email job to the queue.
- * @param data Email to send
- * @param delay Optional delay in milliseconds (e.g., 600000 for 10 minutes)
+ * Supports custom options like delay and priority.
  */
-export const addEmailJob = async (data: EmailJobData, delay?: number) => {
+export const addEmailJob = async (data: EmailJobData, options?: JobsOptions) => {
   try {
-    const job = await emailQueue.add("send_email", data, {
-      delay: delay || 0,
-    });
-    
-    if (delay) {
-      console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to} with ${delay}ms delay`);
-    } else {
-      console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to}`);
-    }
-    
+    const job = await emailQueue.add("send_email", data, options);
+    console.log(`[EmailQueue] Job enqueued: ${job.id} for ${data.to}${options?.delay ? ` (delayed ${options.delay}ms)` : ''}`);
     return job;
   } catch (error) {
     console.error("[EmailQueue] Error enqueuing job:", error);
