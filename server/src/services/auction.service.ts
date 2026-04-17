@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Inventory from "../models/Inventory.model.js";
 import type { IAuction } from "../models/Auction.model.js";
 import { Auction } from "../models/Auction.model.js";
+import { publishEvent } from "../utils/publisher.js";
 
 interface CreateAuctionInput {
     inventoryId: string;
@@ -73,6 +74,11 @@ export const createAuctionService = async ({
         if (!auction[0]) {
             throw new Error("Failed to create auction");
         }
+
+        // Invalidate inventory caches as status changed to LISTED
+        publishEvent("inventory-cache-updates", { type: "INVALIDATE_INVENTORY_CACHE" }).catch(err => 
+            console.error("Cache invalidation failed after auction creation:", err)
+        );
 
         return auction[0];
     } catch (error) {
@@ -204,6 +210,11 @@ export const deleteAuctionService = async (
             await session.commitTransaction();
             session.endSession();
         }
+
+        // Invalidate inventory caches as status changed back to AVAILABLE
+        publishEvent("inventory-cache-updates", { type: "INVALIDATE_INVENTORY_CACHE" }).catch(err => 
+            console.error("Cache invalidation failed after auction deletion:", err)
+        );
     } catch (error) {
         if (session) {
             await session.abortTransaction();

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import type { IInventory } from "../models/Inventory.model.js";
 import Inventory from "../models/Inventory.model.js";
+import { publishEvent } from "../utils/publisher.js";
 
 export const createInventoryService = async (
     userId: string,
@@ -52,6 +53,17 @@ export const createInventoryService = async (
     };
 
     const inventory = await Inventory.create(newInventory as any);
+
+    // Lifecycle event
+    publishEvent("inventory-updates", { type: "INVENTORY_ADDED", key: inventory._id }).catch(err =>
+        console.error("Inventory added event failed:", err)
+    );
+
+    // Structural cache invalidation (lists)
+    publishEvent("inventory-cache-updates", { type: "INVALIDATE_INVENTORY_CACHE" }).catch(err => 
+        console.error("Cache invalidation failed after creation:", err)
+    );
+
     return inventory;
 };
 
@@ -178,6 +190,16 @@ export const updateInventoryService = async (
         };
     }
 
+    // Lifecycle event
+    publishEvent("inventory-updates", { type: "INVENTORY_UPDATED", key: inventory._id }).catch(err =>
+        console.error("Inventory updated event failed:", err)
+    );
+
+    // Structural cache invalidation
+    publishEvent("inventory-cache-updates", { type: "INVALIDATE_INVENTORY_CACHE" }).catch(err => 
+        console.error("Cache invalidation failed after update:", err)
+    );
+
     return inventory;
 };
 
@@ -232,6 +254,16 @@ export const deleteInventoryService = async (
             message: "Inventory is locked and cannot be deleted",
         };
     }
+
+    // Structural cache invalidation
+    publishEvent("inventory-cache-updates", { type: "INVALIDATE_INVENTORY_CACHE" }).catch(err => 
+        console.error("Cache invalidation failed after deletion:", err)
+    );
+
+    // Lifecycle event
+    publishEvent("inventory-updates", { type: "INVENTORY_DELETED", key: inventory._id }).catch(err =>
+        console.error("Inventory deleted event failed:", err)
+    );
 
     return inventory;
 };

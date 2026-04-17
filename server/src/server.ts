@@ -12,6 +12,7 @@ import { initAuctionCron } from "./cron/auction.cron.js";
 import { initPaymentCron } from "./cron/payment.cron.js";
 import { initAdvertisementCron } from "./cron/advertisement.cron.js";
 import { logService } from "./services/log.service.js";
+import { initSubscriber } from "./services/subscriber.service.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ connectDB();
 // initAuctionCron();
 // initPaymentCron();
 // initAdvertisementCron();
+initSubscriber();
 
 const app = express();
 const httpServer = createServer(app);
