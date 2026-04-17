@@ -84,10 +84,38 @@ export const createAuctionService = async ({
     }
 };
 
-export const getAuctionsService = async (query: any = {}): Promise<IAuction[]> => {
-    // Basic filtering logic can be expanded here
-    const auctions = await Auction.find(query).populate("inventoryId"); // Populate inventory details
-    return auctions;
+import { paginationCache } from "../utils/cache.util.js";
+
+export const getAuctionsFromDB = async (query: any = {}): Promise<{ auctions: IAuction[], pagination: any }> => {
+    const { page = 1, limit = 10, ...filters } = query;
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+    const auctions = await Auction.find(filters)
+        .populate("inventoryId")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit as string));
+
+    const total = await Auction.countDocuments(filters);
+
+    return {
+        auctions,
+        pagination: {
+            total,
+            page: parseInt(page as string),
+            limit: parseInt(limit as string),
+            pages: Math.ceil(total / parseInt(limit as string)),
+        }
+    };
+};
+
+export const getAuctionsService = async (query: any = {}) => {
+    return await paginationCache(
+        "auction_list",
+        query,
+        getAuctionsFromDB,
+        { ttl: 300 } // 5 minutes cache
+    );
 };
 
 export const getAuctionByIdService = async (auctionId: string): Promise<IAuction> => {

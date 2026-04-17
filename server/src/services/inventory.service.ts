@@ -55,8 +55,12 @@ export const createInventoryService = async (
     return inventory;
 };
 
-export const getAllInventoriesService = async (filters: any = {}): Promise<IInventory[]> => {
+import { paginationCache } from "../utils/cache.util.js";
+
+export const getAllInventoriesFromDB = async (filters: any = {}): Promise<{ inventories: IInventory[], pagination: any }> => {
     const query: any = {};
+    const { page = 1, limit = 10 } = filters;
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
     if (filters.status) query.status = filters.status;
 
@@ -90,9 +94,32 @@ export const getAllInventoriesService = async (filters: any = {}): Promise<IInve
         ];
     }
 
-    const inventories = await Inventory.find(query).sort({ createdAt: -1 });
-    return inventories;
-}
+    const inventories = await Inventory.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit as string));
+
+    const total = await Inventory.countDocuments(query);
+
+    return {
+        inventories,
+        pagination: {
+            total,
+            page: parseInt(page as string),
+            limit: parseInt(limit as string),
+            pages: Math.ceil(total / parseInt(limit as string)),
+        }
+    };
+};
+
+export const getAllInventoriesService = async (filters: any = {}) => {
+    return await paginationCache(
+        "inventory_list",
+        filters,
+        getAllInventoriesFromDB,
+        { ttl: 600 } // 10 minutes cache
+    );
+};
 
 export const updateInventoryService = async (
     inventoryId: string,

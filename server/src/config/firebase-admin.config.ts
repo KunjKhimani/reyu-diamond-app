@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import path from "path";
-import serviceAccount from "../config/reyuDiamondKey.json" with { type: "json" };
+// @ts-ignore
+import serviceAccount from "../config/reyuDiamondKey.json" assert { type: "json" };
 
 type Bucket = ReturnType<admin.storage.Storage["bucket"]>;
 

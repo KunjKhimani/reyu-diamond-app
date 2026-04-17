@@ -1,0 +1,3205 @@
+{
+  "info": {
+    "_postman_id": "22e66aaf-230a-4c4c-8c05-a6e3b0c2ea97",
+    "name": "Reyu Diamond App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "32609876",
+    "_collection_link": "https://go.postman.co/collection/32609876-22e66aaf-230a-4c4c-8c05-a6e3b0c2ea97?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Update User Status (ACTIVE/DEACTIVE)",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"ACTIVE\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/admin/users/:userId/status",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "users",
+                    ":userId",
+                    "status"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": ""
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Users (Query Sorting)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "localhost:3000/api/admin/users?isVerified=false",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "isVerified",
+                      "value": "false"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Register",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"username\": \"Kunj u6\",\r\n    \"email\": \"kunjkhimani13+6@gmail.com\",\r\n    \"password\": \"Kunj@123\",\r\n    \"fcmToken\": \"eMm_zYylbuq0knqwMNLKh1:APA91bEGc1Bw6vE0SeKlV-hu6VKyRDCUDLIE7v6WsAI3MUth1zgBoJdMnG8e8RvpEhHnRZ8x_Xk0PLUOpqfL8T40CDhCxU5oeDT90TgW5vww5lUlHla5Ri0\"     \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/register",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Resend Otp",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"kunjkhimani13+2@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/resend-otp",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "resend-otp"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"kunjkhimani13+1\",\r\n    \"password\": \"Admin@123!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/login",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "admin Login",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u9}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"kunjkhimani13@gmail.com\",\r\n    \"password\": \"Admin@123!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/login",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/auth/logout",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "logout"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"username\": \"Kkkk\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/profile",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Profile",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{k_user_2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "aadhaarNumber",
+                      "value": "123456789121",
+                      "type": "text",
+                      "uuid": "c3aca0c2-fb9e-40bd-830f-0f0c086d8995"
+                    },
+                    {
+                      "key": "panNumber",
+                      "value": "ABCDE1234F",
+                      "type": "text",
+                      "uuid": "a34a23da-0fbd-495e-ba00-f3d681e0d4e8"
+                    },
+                    {
+                      "key": "aadhaar",
+                      "type": "file",
+                      "uuid": "542a537c-bf4a-44c9-b10d-12e0d9eda8ef",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/addhaar.png"
+                    },
+                    {
+                      "key": "pan",
+                      "type": "file",
+                      "uuid": "ec3c2807-8c3c-45ea-952d-06d74110e1fc",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/pan.png"
+                    },
+                    {
+                      "key": "userId",
+                      "value": "696f175c1f7f8657143d6273",
+                      "type": "text",
+                      "uuid": "36c39c33-039b-4b6e-9155-1dc491b6245a"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/profile",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Forget Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"kunjkhimani13+6@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/auth/forget-password",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "forget-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset pwd",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NzlkOGZjMGQ0MjBjOTU1ZGEzNGQyYyIsInB1cnBvc2UiOiJwYXNzd29yZF9yZXNldCIsImlhdCI6MTc3MDk4MjQ1OCwiZXhwIjoxNzcwOTg2MDU4fQ.MdBZOfc6P_wdS7FNCAvMxHLCHSeYdaCAEViHSBU8TkI\",\r\n    \"newPassword\": \"Kunj@123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/auth/reset-password",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Otp",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u7}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"kunjkhimani13+6@gmail.com\",\r\n    \"otp\": \"759800\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auth/verify-otp",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "verify-otp"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KYC",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "KYC Approval By Admin",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"approved\"      \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/admin/kyc/:userId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "kyc",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "699ae6f4f2fb01d4915154d8"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All KYCs (Query Sorting)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "localhost:3000/api/admin/kycs?status=pending",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "kycs"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "pending"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Submit KYC Doc",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u6}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "aadhaarNumber",
+                      "value": "123456789121",
+                      "type": "text",
+                      "uuid": "c3aca0c2-fb9e-40bd-830f-0f0c086d8995",
+                      "disabled": true
+                    },
+                    {
+                      "key": "panNumber",
+                      "value": "ABCDE1234F",
+                      "type": "text",
+                      "uuid": "a34a23da-0fbd-495e-ba00-f3d681e0d4e8",
+                      "disabled": true
+                    },
+                    {
+                      "key": "aadhaar",
+                      "type": "file",
+                      "uuid": "542a537c-bf4a-44c9-b10d-12e0d9eda8ef",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/addhaar.png",
+                      "disabled": true
+                    },
+                    {
+                      "key": "pan",
+                      "type": "file",
+                      "uuid": "ec3c2807-8c3c-45ea-952d-06d74110e1fc",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/pan.png",
+                      "disabled": true
+                    },
+                    {
+                      "key": "firstName",
+                      "value": "asdasd",
+                      "type": "text",
+                      "uuid": "36c39c33-039b-4b6e-9155-1dc491b6245a"
+                    },
+                    {
+                      "key": "lastName",
+                      "value": "asdasd",
+                      "type": "text",
+                      "uuid": "e10478c9-a365-4798-b7a7-0da176064ba0"
+                    },
+                    {
+                      "key": "dob",
+                      "value": "12/12/2000",
+                      "type": "text",
+                      "uuid": "143cd03d-4ac2-4768-9239-624a9dc485ce"
+                    },
+                    {
+                      "key": "phone",
+                      "value": "7896547894",
+                      "type": "text",
+                      "uuid": "f7558652-9dd8-4314-81ff-a8a80a3dfc77"
+                    },
+                    {
+                      "key": "address[residentialAddress]",
+                      "value": "1",
+                      "type": "text",
+                      "uuid": "69c809e8-9998-4ff3-ad8d-3cc37b7b8447"
+                    },
+                    {
+                      "key": "address[city]",
+                      "value": "surat",
+                      "type": "text",
+                      "uuid": "b778fbf4-1e21-4fa3-9040-b5746b32f82f"
+                    },
+                    {
+                      "key": "address[state]",
+                      "value": "Gujarat",
+                      "type": "text",
+                      "uuid": "ce6f7369-e99c-4436-b39d-48405d14a5a8"
+                    },
+                    {
+                      "key": "address[pincode]",
+                      "value": "395006",
+                      "type": "text",
+                      "uuid": "02101b84-b40e-4617-973b-52c70aa64a32"
+                    },
+                    {
+                      "key": "address[country]",
+                      "value": "india",
+                      "type": "text",
+                      "uuid": "0c8cd89d-a34a-47bf-bc05-502d97d2b78a"
+                    },
+                    {
+                      "key": "documents[aadhaar][aadhaarNumber]",
+                      "value": "123456789012",
+                      "type": "text",
+                      "uuid": "02d9721b-d4fc-4bcd-a4fe-2809a7062a62"
+                    },
+                    {
+                      "key": "aadhaar",
+                      "type": "file",
+                      "uuid": "e17ccf6f-a405-488c-9310-f0d5b9fb8cbc",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/addhaar.png"
+                    },
+                    {
+                      "key": "documents[pan][panNumber]",
+                      "value": "ASQWD1122C",
+                      "type": "text",
+                      "uuid": "95baae3b-d0b9-4f0a-9273-a497788aaf8e"
+                    },
+                    {
+                      "key": "pan",
+                      "type": "file",
+                      "uuid": "3312dc14-18cf-4843-9e38-16fe60d312ae",
+                      "src": "/C:/Users/Dell/OneDrive/Pictures/Screen shot/pan.png"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "localhost:3000/api/kyc/submit",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "kyc",
+                    "submit"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Requirement",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Get all requirement",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"shape\": \"Round\",\r\n  \"carat\": 1.5,\r\n  \"color\": \"D\",\r\n  \"clarity\": \"VVS1\",\r\n  \"lab\": \"GIA\",\r\n  \"location\": \"Surat\",\r\n  \"budget\": 15000,\r\n  \"deadline\": \"2026-01-22\"\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/requirements",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "requirements"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Create Requirement",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{   \r\n    \"shape\": \"Requirement by 4\",\r\n    \"carat\": 1.5,\r\n    \"color\": \"E\",\r\n    \"clarity\": \"VVS1\",\r\n    \"lab\": \"GIA\",\r\n    \"location\": \"Surat\",\r\n    \"budget\": 1500,\r\n    \"deadline\": \"2026-01-24T00:00:00.000Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/requirements",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "requirements"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Requirement",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"carat\": 2\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/requirements/{{requirementId}}",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "requirements",
+                    "{{requirementId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get my requirement",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"shape\": \"Round\",\r\n  \"carat\": 1.5,\r\n  \"color\": \"D\",\r\n  \"clarity\": \"VVS1\",\r\n  \"lab\": \"GIA\",\r\n  \"location\": \"Surat\",\r\n  \"budget\": 15000,\r\n  \"deadline\": \"2026-01-22\"\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/requirements/my-requirement",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "requirements",
+                    "my-requirement"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Requirement By Id",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"shape\": \"Round\",\r\n  \"carat\": 1.5,\r\n  \"color\": \"D\",\r\n  \"clarity\": \"VVS1\",\r\n  \"lab\": \"GIA\",\r\n  \"location\": \"Surat\",\r\n  \"budget\": 15000,\r\n  \"deadline\": \"2026-01-22\"\r\n}\r\n"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/requirements/:requirementId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "requirements",
+                    ":requirementId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "requirementId",
+                      "value": "699aed48f2fb01d4915155a4"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Create Inventory",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"by user 2\",\r\n    \"description\": \"akjfhakjhvaljvalj\",\r\n    \"shape\": \"ROUND\",\r\n    \"carat\": 2.22,\r\n    \"color\": \"D\",\r\n    \"cut\": \"EXCELLENT\",\r\n    \"price\": 1500,\r\n    \"clarity\": \"VVS1\",\r\n    \"lab\": \"GIA\",\r\n    \"location\": \"Rajkot\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/inventory",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "inventory"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all Inventories (Query Sorting) All access",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"shape\": \"Oval\",\r\n    \"carat\": 2.1,\r\n    \"color\": \"F\",\r\n    \"clarity\": \"VS1\",\r\n    \"lab\": \"IGI\",\r\n    \"location\": \"Mumbai Office\",\r\n    \"price\": 14200,\r\n    \"status\": \"IN_LOCKER\"\r\n}"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/inventory",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "inventory"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Inventories By Id (Query Sorting) All Access",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"shape\": \"Oval\",\r\n    \"carat\": 2.1,\r\n    \"color\": \"F\",\r\n    \"clarity\": \"VS1\",\r\n    \"lab\": \"IGI\",\r\n    \"location\": \"Mumbai Office\",\r\n    \"price\": 14200,\r\n    \"status\": \"IN_LOCKER\"\r\n}"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/inventory/:inventoryId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "inventory",
+                    ":inventoryId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "inventoryId",
+                      "value": "69802160605cb0aa5da2fb8f"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update (Owner & Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"price\": 1300\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/inventory/{{inventoryId}}",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "inventory",
+                    "{{inventoryId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete (Owner & Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"shape\": \"Oval\",\r\n    \"carat\": 2.1,\r\n    \"color\": \"F\",\r\n    \"clarity\": \"VS1\",\r\n    \"lab\": \"IGI\",\r\n    \"location\": \"Mumbai Office\",\r\n    \"price\": 14200,\r\n    \"status\": \"IN_LOCKER\"\r\n}"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/inventory/{{inventoryId}}",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "inventory",
+                    "{{inventoryId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auction",
+      "item": [
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Create Auction (Owner & Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"basePrice\": 15000,\r\n  \"startDate\": \"2026-02-21\",\r\n  \"endDate\": \"2026-03-01T17:00:00.000+00:00\"\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auction/{{inventoryId}}",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auction",
+                    "{{inventoryId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "All Auction list (Query Sorting)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "localhost:3000/api/auction",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auction"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Auction By Id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auction/:auctionId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auction",
+                    ":auctionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "auctionId",
+                      "value": "69983a210292408a0a5cb7ff"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update Auction (Owner & Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"basePrice\": \"17500\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auction/:auctionId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auction",
+                    ":auctionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "auctionId",
+                      "value": "6981d2fce9f214c562b41418"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Remove from Auction (Owner & Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"basePrice\": \"5000\"\r\n}"
+                },
+                "url": {
+                  "raw": "localhost:3000/api/auction/:auctionId",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "auction",
+                    ":auctionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "auctionId",
+                      "value": "698073970fa3922a82ec7b20"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bid",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Get All bids (Seller and Admin)",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/{{auctionId}}",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    "{{auctionId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Bids by userId for Auction (QUERY SORTING)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/admin/bids/{{auctionId}}/{{userId}}?status=REJECTED",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "bids",
+                    "{{auctionId}}",
+                    "{{userId}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "REJECTED"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Bids by userId (QUERY SORTING)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/admin/bids/{{userId}}?status=REJECTED",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "bids",
+                    "{{userId}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "REJECTED"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Place Bid",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"bidAmount\": 15500\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/{{auctionId}}",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    "{{auctionId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All bids (Seller and Admin)",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/{{auctionId}}",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    "{{auctionId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Bid by Seller ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/:auctionId/my-bid",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    ":auctionId",
+                    "my-bid"
+                  ],
+                  "variable": [
+                    {
+                      "key": "auctionId",
+                      "value": "6981d2fce9f214c562b41418"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Bid by Seller ID Copy",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/:auctionId/my-bid",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    ":auctionId",
+                    "my-bid"
+                  ],
+                  "variable": [
+                    {
+                      "key": "auctionId",
+                      "value": "6981d2fce9f214c562b41418"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Bid Status Update By Seller (ACCEPT/REJECT)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{a1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"ACCEPTED\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/bid/{{bidId}}/status",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "bid",
+                    "{{bidId}}",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deal",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Get Deal By Id (Admin and Owner)",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/deal/:dealId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "6981e52e3398e350fdb7bc9c"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "resolve dispute (Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"resolution\": \"RELEASE_SELLER\",\r\n    \"adminNote\": \"sdjvksjhvblakba\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/deal/:dealId/resolve-dispute",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId",
+                    "resolve-dispute"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "697b0570303473005b5452d4"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Create Deal",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/deal/:bidId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":bidId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "bidId",
+                      "value": "69983a880292408a0a5cb810"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Deal Status",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"DELIVERED\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/deal/:dealId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "699844060292408a0a5cb8d0"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Invoice By dealId (Buyer/Seller/Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"IN_ESCROW\"\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/deal/:dealId/pdf",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId",
+                    "pdf"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "699844060292408a0a5cb8d0"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cancel (Buyer/Seller/Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "localhost:3000/api/deal/:dealId/cancel",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId",
+                    "cancel"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "69983af10292408a0a5cb82e"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Deal By Id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/deal/:dealId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "6981e52e3398e350fdb7bc9c"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all deal (All - Query Sorting)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/deal",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "raise dispute (Buyer/Seller/Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"reason\": \"djvhskvjhskgdjvhskjhvbkjvhslvjbs\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/deal/:dealId/dispute",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "deal",
+                    ":dealId",
+                    "dispute"
+                  ],
+                  "variable": [
+                    {
+                      "key": "dealId",
+                      "value": "697b0570303473005b5452d4"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stripe",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Refund (Seller / Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"dealId\": \"697b0570303473005b5452d4\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/stripe/refund-escrow",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "stripe",
+                    "refund-escrow"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Onboard",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "localhost:3000/api/stripe/onboard",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "stripe",
+                    "onboard"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Payment Initiate",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"dealId\": \"{{dealId}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/stripe/payment-intent",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "stripe",
+                    "payment-intent"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buyer Confirmation",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"dealId\": \"{{dealId}}\",\r\n    \"notes\": \"Product is arrived\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/stripe/buyer-confirm",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "stripe",
+                    "buyer-confirm"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Release payment",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{buyer_k}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"dealId\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "localhost:3000/api/stripe/release-payment",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "stripe",
+                    "release-payment"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "chat",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"auctionId\": \"{{auctionId}}\",\r\n    \"participants\": [\r\n        \"6979dbf30d420c955da34d6c\",\"6979dbf30d420c955da34d6c\"\r\n    ]   \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/conversations",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "conversations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u2}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"auctionId\": \"{{auctionId}}\",\r\n    \"participants\": [\r\n        \"{{sellerId}}\",\"{{buyerId}}\"\r\n    ]   \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/conversations",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "conversations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "mark as read",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u1}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/conversations/:conversationId/read",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "conversations",
+                ":conversationId",
+                "read"
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "698daf864bff7d52f84cf5dc"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Message",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u3}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "conversationId",
+                  "value": "698daf864bff7d52f84cf5dc",
+                  "type": "text",
+                  "uuid": "00321dea-8e75-47d2-81d6-187bde9e3c68"
+                },
+                {
+                  "key": "content",
+                  "value": "sdnvsjvbkjdsbv",
+                  "type": "text",
+                  "uuid": "53b02e2a-e882-4c39-ac0c-3c1c11568fd2"
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "uuid": "1207dd02-4969-4db0-9550-0576c723050f",
+                  "src": [
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/addhaar.png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/pan.png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/Screenshot (2).png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/Screenshot (3).png",
+                    "/C:/Users/Dell/Downloads/mapp-backend.pdf",
+                    "/C:/Users/Dell/Videos/Screen Recordings/Screen Recording 2025-11-18 112950.mp4"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/messages",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get messages",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u4}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/messages/:conversationId",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "messages",
+                ":conversationId"
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "698daf864bff7d52f84cf5dc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete message",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{u3}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "conversationId",
+                  "value": "698daf864bff7d52f84cf5dc",
+                  "type": "text",
+                  "uuid": "00321dea-8e75-47d2-81d6-187bde9e3c68"
+                },
+                {
+                  "key": "content",
+                  "value": "sdnvsjvbkjdsbv",
+                  "type": "text",
+                  "uuid": "53b02e2a-e882-4c39-ac0c-3c1c11568fd2"
+                },
+                {
+                  "key": "attachments",
+                  "type": "file",
+                  "uuid": "1207dd02-4969-4db0-9550-0576c723050f",
+                  "src": [
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/addhaar.png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/pan.png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/Screenshot (2).png",
+                    "/C:/Users/Dell/OneDrive/Pictures/Screen shot/Screenshot (3).png",
+                    "/C:/Users/Dell/Downloads/mapp-backend.pdf",
+                    "/C:/Users/Dell/Videos/Screen Recordings/Screen Recording 2025-11-18 112950.mp4"
+                  ],
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "localhost:3000/api/chat/messages/:messageId",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "chat",
+                "messages",
+                ":messageId"
+              ],
+              "variable": [
+                {
+                  "key": "messageId",
+                  "value": "69900abbc254640ec53cd551"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rating & Badge",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "rate and badge",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/admin/ratings-and-badges",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "admin",
+                    "ratings-and-badges"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Post the Rate",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u3}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"dealId\": \"698d5bf91c4abc7c6cbaa921\",\r\n    \"score\": 5\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/ratings/",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "ratings",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get rate",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u2}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/ratings/user/:userId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "ratings",
+                    "user",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "6979dbf30d420c955da34d6c"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ads",
+      "item": [
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Admin Accept/Reject",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": \"APPROVED\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/advertisements/:advertisementId/status",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "advertisements",
+                    ":advertisementId",
+                    "status"
+                  ],
+                  "variable": [
+                    {
+                      "key": "advertisementId",
+                      "value": "6992b4554704bd33a246fb60"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Ad by User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/advertisements/user/:userId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "advertisements",
+                    "user",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "6979da0b0d420c955da34d3e"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ad by Id",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/advertisements/:advertisementId",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "advertisements",
+                    ":advertisementId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "advertisementId",
+                      "value": "6992b4554704bd33a246fb60"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Ad creation",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u1}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "inventoryId",
+                      "value": "699073fafaf336272d376981",
+                      "type": "text",
+                      "uuid": "63a0cabc-5a4f-4221-8231-1c479ac1457e"
+                    },
+                    {
+                      "key": "title",
+                      "value": "Reyu",
+                      "type": "text",
+                      "uuid": "7288673c-bd61-4515-8c92-56996fea65a1"
+                    },
+                    {
+                      "key": "media",
+                      "type": "file",
+                      "uuid": "b298ca42-ca63-4967-ac03-15c77f28d4cb",
+                      "src": "/C:/Users/Dell/Videos/Screen Recordings/Screen Recording 2025-11-18 112950.mp4"
+                    },
+                    {
+                      "key": "bannerSection",
+                      "value": "HOME_DASHBOARD",
+                      "type": "text",
+                      "uuid": "6c9437ea-20b4-4d40-81d0-7e4d7cdea3f4"
+                    },
+                    {
+                      "key": "startDate",
+                      "value": "2026-02-17T00:00:00.000Z",
+                      "type": "text",
+                      "uuid": "a0e0f162-0615-4c60-9408-ef6b1e457e9d"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2026-03-20T23:59:59.000Z",
+                      "type": "text",
+                      "uuid": "771adff4-d214-418c-9ef3-e6defedfe13f"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/advertisements/",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "advertisements",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all Ads for login user",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{u4}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/advertisements",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "advertisements"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Analytics",
+      "item": [
+        {
+          "name": "Dashboard Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:3000/api/analytics/dashboard?kycStatus=approved",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "analytics",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "kycStatus",
+                  "value": "approved"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revenue Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:3000/api/analytics/revenue?startDate=2026-01-01&endDat=2026-02-01",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "analytics",
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDat",
+                  "value": "2026-02-01"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Logs (admin)",
+      "item": [
+        {
+          "name": "admin logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/logs/admin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "logs",
+                "admin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "system logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/logs/system",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "logs",
+                "system"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "system stats logs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/logs/system/stats",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "logs",
+                "system",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "a1",
+      "value": ""
+    },
+    {
+      "key": "a2",
+      "value": ""
+    },
+    {
+      "key": "a3",
+      "value": ""
+    },
+    {
+      "key": "u1",
+      "value": ""
+    },
+    {
+      "key": "u2",
+      "value": ""
+    },
+    {
+      "key": "u3",
+      "value": ""
+    },
+    {
+      "key": "u4",
+      "value": ""
+    },
+    {
+      "key": "u5",
+      "value": ""
+    },
+    {
+      "key": "u6",
+      "value": ""
+    },
+    {
+      "key": "requirementId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "bidId",
+      "value": ""
+    },
+    {
+      "key": "auctionId",
+      "value": ""
+    },
+    {
+      "key": "conversationId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "dealId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "inventoryId",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
