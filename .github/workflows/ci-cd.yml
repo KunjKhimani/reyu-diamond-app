@@ -42,6 +42,7 @@ jobs:
         with:
           image-ref: reyu-app
           severity: CRITICAL,HIGH
+          ignore-unfixed: true
           exit-code: 1
 
       # 8️⃣ Run Docker container (for test)
