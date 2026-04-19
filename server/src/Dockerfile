@@ -18,7 +18,7 @@ RUN npm prune --omit=dev && npm cache clean --force
 
 
 # -------- Stage 2: Runtime --------
-FROM gcr.io/distroless/nodejs22-debian12:nonroot
+FROM gcr.io/distroless/nodejs22-debian12:latest
 
 WORKDIR /app
 
