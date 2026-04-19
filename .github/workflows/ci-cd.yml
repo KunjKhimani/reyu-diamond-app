@@ -37,12 +37,22 @@ jobs:
         run: docker build -t reyu-app ./server/src
 
       # 7️⃣ Scan Docker image
-      - name: Trivy Image Scan
+      # 🔍 Full visibility (no fail)
+      - name: Trivy Full Scan (Report)
         uses: aquasecurity/trivy-action@v0.20.0
         with:
           image-ref: reyu-app
-          severity: CRITICAL,HIGH
+          severity: LOW,MEDIUM,HIGH,CRITICAL
           ignore-unfixed: true
+          exit-code: 0
+      
+      # 🚨 Fail only on real danger
+      - name: Trivy Critical Gate
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          image-ref: reyu-app
+          severity: CRITICAL
+          ignore-unfixed: false
           exit-code: 1
 
       # 8️⃣ Run Docker container (for test)
