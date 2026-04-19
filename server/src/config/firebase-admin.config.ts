@@ -1,13 +1,12 @@
 import admin from "firebase-admin";
 import path from "path";
-import serviceAccount from "../config/reyuDiamondKey.json" with { type: "json" };
+import fs from "fs";
+
+const serviceAccount = JSON.parse(
+  fs.readFileSync("./dist/config/reyuDiamondKey.json", "utf-8")
+);
 
 type Bucket = ReturnType<admin.storage.Storage["bucket"]>;
-
-const serviceAccountPath = path.resolve(
-  process.cwd(),
-  "config/reyuDiamondKey.json"
-);
 
 if (!admin.apps.length) {
   admin.initializeApp({
