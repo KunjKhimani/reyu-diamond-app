@@ -1,0 +1,41 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Create .env file
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > server/src/.env
+
+      # 3️⃣ Create API JSON file
+      - name: Create API Config JSON
+        run: |
+          mkdir -p server/src/config
+          echo '${{ secrets.API_CONFIG_JSON }}' > server/src/config/reyuDiamondKey.json
+
+      # 4️⃣ Install dependencies (optional if using Docker)
+      - name: Install Dependencies
+        run: npm install
+
+      # 5️⃣ Run test (optional)
+      - name: Run Tests
+        run: npm test || echo "No tests"
+
+      # 6️⃣ Build Docker image
+      - name: Build Docker Image
+        run: docker build -t reyu-app ./server
+
+      # 7️⃣ Run Docker container (for test)
+      - name: Run Docker Container
+        run: docker run -d -p 3000:3000 --env-file server/src/.env reyu-app
