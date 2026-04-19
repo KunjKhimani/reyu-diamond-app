@@ -26,15 +26,15 @@ jobs:
 
       # 4️⃣ Install dependencies (optional if using Docker)
       - name: Install Dependencies
-        run: npm install
+        run: cd server/src && npm install
 
       # 5️⃣ Run test (optional)
       - name: Run Tests
-        run: npm test || echo "No tests"
+        run: cd server/src && npm test || echo "No tests"
 
       # 6️⃣ Build Docker image
       - name: Build Docker Image
-        run: docker build -t reyu-app ./server
+        run: docker build -t reyu-app ./server/src
 
       # 7️⃣ Run Docker container (for test)
       - name: Run Docker Container
