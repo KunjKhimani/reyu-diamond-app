@@ -8,6 +8,12 @@ on:
 jobs:
   build-push-deploy:
     runs-on: ubuntu-latest
+    env:
+      HOST: ""
+      USER: ""
+      SSH_KEY: ""
+      USERNAME: ""
+      PASSWORD: ""
 
     steps:
       # 1️⃣ Checkout Code
@@ -24,13 +30,14 @@ jobs:
       # 3️⃣ Load Server Secrets (NO FILE ✅)
       - name: Load Server Secrets
         run: |
-          # Extract HOST and USER normally
-          echo "${{ secrets.SERVER }}" | grep HOST >> $GITHUB_ENV
-          echo "${{ secrets.SERVER }}" | grep USER >> $GITHUB_ENV
+          # Extract HOST and USER
+          echo "${{ secrets.SERVER }}" | grep "^HOST=" >> $GITHUB_ENV || true
+          echo "${{ secrets.SERVER }}" | grep "^USER=" >> $GITHUB_ENV || true
 
           # Handle SSH_KEY (multiline properly)
+          # This extracts from SSH_KEY= until the end of the secret
           echo "SSH_KEY<<EOF" >> $GITHUB_ENV
-          echo "${{ secrets.SERVER }}" | sed -n '/SSH_KEY=/,$p' | sed '1s/SSH_KEY=//' >> $GITHUB_ENV
+          echo "${{ secrets.SERVER }}" | sed -n '/^SSH_KEY=/,$p' | sed '1s/^SSH_KEY=//' >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       # 4️⃣ Install dependencies
