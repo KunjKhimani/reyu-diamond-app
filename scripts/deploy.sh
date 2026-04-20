@@ -6,7 +6,7 @@ echo "🚀 Starting Deployment..."
 
 BRANCH=${BRANCH:-development}
 DOCKER_IMAGE=${DOCKER_IMAGE}
-COMPOSE_FILE=${COMPOSE_FILE:-docker-compose.prod.yml}
+COMPOSE_FILE=${COMPOSE_FILE:-server/docker-compose.prod.yml}
 
 echo "🌿 Branch: $BRANCH"
 echo "🐳 Image: $DOCKER_IMAGE"
