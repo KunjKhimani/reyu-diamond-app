@@ -45,7 +45,7 @@ services:
     image: grafana/grafana
     container_name: reyu_grafana
     ports:
-      - "5050:5050"
+      - "5050:3000"
     volumes:
       - grafana_data_reyu:/var/lib/grafana
     depends_on:
