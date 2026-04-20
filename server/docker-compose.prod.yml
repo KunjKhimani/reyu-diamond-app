@@ -20,6 +20,8 @@ services:
       - ./src/.env   # ✅ FIXED
     ports: 
       - "7000:7000"         # ✅ FIXED
+    volumes:
+      - ./src/config/reyuDiamondKey.json:/app/dist/config/reyuDiamondKey.json
     depends_on:
       mongo:
         condition: service_healthy
