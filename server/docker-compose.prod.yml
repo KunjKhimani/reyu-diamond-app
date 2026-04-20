@@ -17,7 +17,7 @@ services:
   reyu_server:
     image: ${DOCKER_IMAGE}
     env_file:
-      - ./server/src/.env   # ✅ FIXED
+      - ./src/.env   # ✅ FIXED
     ports: 
       - "5000:3000"         # ✅ FIXED
     depends_on:
