@@ -19,7 +19,7 @@ services:
     env_file:
       - ./src/.env   # ✅ FIXED
     ports: 
-      - "5000:3000"         # ✅ FIXED
+      - "7000:7000"         # ✅ FIXED
     depends_on:
       mongo:
         condition: service_healthy

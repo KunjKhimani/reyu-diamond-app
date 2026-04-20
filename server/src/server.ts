@@ -80,7 +80,7 @@ app.use(async (err: any, req: Request, res: Response, next: express.NextFunction
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 7000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Server running on port ${PORT}`);

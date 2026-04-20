@@ -161,7 +161,7 @@ export const forgetPasswordService = async (email: string): Promise<void> => {
   }
 
   const token = generateResetPasswordToken(user._id.toString());
-  const baseUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+  const baseUrl = process.env.FRONTEND_URL ?? "http://localhost:7000";
   const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
   await sendEmail({

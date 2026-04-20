@@ -23,7 +23,7 @@ services:
     env_file:
       - ./src/.env
     ports: 
-      - "3000:3000"
+      - "7000:7000"
     volumes:
       - ./src:/app
       - /app/node_modules # Anonymous volume to maintain container-side node_modules

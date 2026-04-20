@@ -22,7 +22,7 @@ services:
     env_file:
       - ./src/.env
     ports: 
-      - "3000:3000"
+      - "7000:7000"
     depends_on:
       mongo:
         condition: service_healthy
