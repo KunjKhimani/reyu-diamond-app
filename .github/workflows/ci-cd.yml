@@ -24,9 +24,14 @@ jobs:
       # 3️⃣ Load Server Secrets (NO FILE ✅)
       - name: Load Server Secrets
         run: |
-          while IFS= read -r line; do
-            echo "$line" >> $GITHUB_ENV
-          done <<< "${{ secrets.SERVER }}"
+          # Extract HOST and USER normally
+          echo "${{ secrets.SERVER }}" | grep HOST >> $GITHUB_ENV
+          echo "${{ secrets.SERVER }}" | grep USER >> $GITHUB_ENV
+
+          # Handle SSH_KEY (multiline properly)
+          echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+          echo "${{ secrets.SERVER }}" | sed -n '/SSH_KEY=/,$p' | sed '1s/SSH_KEY=//' >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       # 4️⃣ Install dependencies
       - name: Install Dependencies
