@@ -11,10 +11,10 @@ COMPOSE_FILE=${COMPOSE_FILE:-server/docker-compose.prod.yml}
 echo "🌿 Branch: $BRANCH"
 echo "🐳 Image: $DOCKER_IMAGE"
 
-# Pull latest code
+# 🔥 FORCE SYNC WITH GITHUB (IMPORTANT)
 git fetch origin
-git checkout $BRANCH
-git pull origin $BRANCH
+git reset --hard origin/$BRANCH
+git clean -fd
 
 # Pull latest image
 docker pull $DOCKER_IMAGE
