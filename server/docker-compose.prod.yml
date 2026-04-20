@@ -15,11 +15,7 @@ services:
     restart: always
 
   reyu_server:
-    build:
-      context: ./src
-      dockerfile: Dockerfile
-      target: production
-    container_name: reyu_server_prod
+    image: ${DOCKER_IMAGE}   # 🔥 dynamic
     # Env variables only, no volume mapping
     env_file:
       - ./src/.env

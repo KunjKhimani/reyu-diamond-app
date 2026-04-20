@@ -6,55 +6,84 @@ on:
       - development
 
 jobs:
-  build-and-run:
+  build-push-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout
+      # 1️⃣ Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2️⃣ Create .env file
-      - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE }}" > server/src/.env
-
-      # 3️⃣ Create API JSON file
-      - name: Create API Config JSON
+      # 2️⃣ Load Docker Secrets (NO FILE ✅)
+      - name: Load Docker Secrets
         run: |
-          mkdir -p server/src/config
-          echo '${{ secrets.API_CONFIG_JSON }}' > server/src/config/reyuDiamondKey.json
+          while IFS= read -r line; do
+            echo "$line" >> $GITHUB_ENV
+          done <<< "${{ secrets.DOCKER }}"
 
-      # 4️⃣ Install dependencies (optional if using Docker)
+      # 3️⃣ Load Server Secrets (NO FILE ✅)
+      - name: Load Server Secrets
+        run: |
+          while IFS= read -r line; do
+            echo "$line" >> $GITHUB_ENV
+          done <<< "${{ secrets.SERVER }}"
+
+      # 4️⃣ Install dependencies
       - name: Install Dependencies
         run: cd server/src && npm install
 
-      # 5️⃣ Run test (optional)
+      # 5️⃣ Run tests
       - name: Run Tests
         run: cd server/src && npm test || echo "No tests"
 
-      # 6️⃣ Build Docker image
+      # 6️⃣ Build Docker Image
       - name: Build Docker Image
         run: docker build -t reyu-app ./server/src
 
-      # 7️⃣ Scan Docker image
-      # 🔍 Full visibility (no fail)
-      - name: Trivy Full Scan (Report)
-        uses: aquasecurity/trivy-action@v0.20.0
-        with:
-          image-ref: reyu-app
-          severity: LOW,MEDIUM,HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: 0
-      
-      # 🚨 Fail only on real danger
-      - name: Trivy Critical Gate
-        uses: aquasecurity/trivy-action@v0.20.0
-        with:
-          image-ref: reyu-app
-          severity: CRITICAL
-          ignore-unfixed: false
-          exit-code: 1
+      # 7️⃣ Login Docker Hub (FIXED ✅)
+      - name: Login Docker Hub
+        run: echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
 
-      # 8️⃣ Run Docker container (for test)
-      - name: Run Docker Container
-        run: docker run -d -p 3000:3000 --env-file server/src/.env reyu-app
+      # 8️⃣ Tag Image with SHA
+      - name: Tag Image
+        run: docker tag reyu-app $USERNAME/reyu-app:${{ github.sha }}
+
+      # 9️⃣ Push Image
+      - name: Push Image
+        run: docker push $USERNAME/reyu-app:${{ github.sha }}
+
+      # 🔟 Deploy to Server
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.USER }}
+          key: ${{ env.SSH_KEY }}
+          script: |
+            set -e
+
+            REPO_NAME="reyu-diamond-app"
+
+            # Clone if not exists
+            if [ ! -d "$REPO_NAME" ]; then
+              git clone https://github.com/KunjKhimani/reyu-diamond-app.git $REPO_NAME
+            fi
+
+            cd $REPO_NAME
+
+            # Pull latest code
+            git pull origin development
+
+            # ✅ Create ENV on server
+            echo "${{ secrets.ENV_FILE }}" > server/src/.env
+
+            # ✅ Create JSON config
+            mkdir -p server/src/config
+            echo '${{ secrets.API_CONFIG_JSON }}' > server/src/config/reyuDiamondKey.json
+
+            # 🔥 Pass dynamic image
+            export DOCKER_IMAGE=${{ env.USERNAME }}/reyu-app:${{ github.sha }}
+            export BRANCH=development
+
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh
