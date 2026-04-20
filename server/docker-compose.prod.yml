@@ -1,3 +1,5 @@
+version: "3.8"
+
 services: 
   mongo:
     image: mongo:7
@@ -16,10 +18,11 @@ services:
 
   reyu_server:
     image: ${DOCKER_IMAGE}
+    container_name: reyu_server_prod
     env_file:
-      - ./src/.env   # ✅ FIXED
+      - ./src/.env
     ports: 
-      - "7000:7000"         # ✅ FIXED
+      - "7000:7000"
     volumes:
       - ./src/config/reyuDiamondKey.json:/app/dist/config/reyuDiamondKey.json
     depends_on:
@@ -27,5 +30,28 @@ services:
         condition: service_healthy
     restart: always
 
+  prometheus:
+    image: prom/prometheus
+    container_name: reyu_prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - reyu_server
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: reyu_grafana
+    ports:
+      - "5050:5050"
+    volumes:
+      - grafana_data_reyu:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: always
+
 volumes:
   mongo_data_reyu_prod:
+  grafana_data_reyu:

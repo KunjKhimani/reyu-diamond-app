@@ -12,12 +12,13 @@ import { initAuctionCron } from "./cron/auction.cron.js";
 import { initPaymentCron } from "./cron/payment.cron.js";
 import { initAdvertisementCron } from "./cron/advertisement.cron.js";
 import { logService } from "./services/log.service.js";
+import client from "prom-client";
 
 dotenv.config();
 
 // Connect to MongoDB
 connectDB();
-
+client.collectDefaultMetrics();
 // Initialize Cron Jobs
 // initAuctionCron();
 // initPaymentCron();
@@ -31,6 +32,11 @@ app.post(
   express.raw({ type: "application/json" }),
   stripeWebhookHandler
 );
+
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 // Initialize Socket.io
 initSocket(httpServer);
