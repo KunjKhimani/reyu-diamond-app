@@ -15,5 +15,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .npm
-config/reyuDiamondKey.json
-dist/config/reyuDiamondKey.json
+# config/reyuDiamondKey.json
+# dist/config/reyuDiamondKey.json
