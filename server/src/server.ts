@@ -33,6 +33,20 @@ app.post(
   stripeWebhookHandler
 );
 
+
+// HTTP request counter
+const httpRequestCounter = new client.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+});
+
+// Middleware
+app.use((req, res, next) => {
+  httpRequestCounter.inc();
+  next();
+});
+
+// Metrics endpoint
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", client.register.contentType);
   res.end(await client.register.metrics());
@@ -88,6 +102,5 @@ app.use(async (err: any, req: Request, res: Response, next: express.NextFunction
 // Start server
 const PORT = process.env.PORT || 7000;
 httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
   console.log(`Server running on port ${PORT}`);
 });
