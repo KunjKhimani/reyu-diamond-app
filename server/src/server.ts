@@ -18,7 +18,10 @@ dotenv.config();
 
 // Connect to MongoDB
 connectDB();
-client.collectDefaultMetrics();
+client.collectDefaultMetrics({
+  prefix: "nodejs_",   // 🔥 THIS IS IMPORTANT
+});
+
 // Initialize Cron Jobs
 // initAuctionCron();
 // initPaymentCron();
@@ -26,6 +29,11 @@ client.collectDefaultMetrics();
 
 const app = express();
 const httpServer = createServer(app);
+// Metrics endpoint
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 app.post(
   "/webhook",
@@ -33,24 +41,6 @@ app.post(
   stripeWebhookHandler
 );
 
-
-// HTTP request counter
-const httpRequestCounter = new client.Counter({
-  name: "http_requests_total",
-  help: "Total number of HTTP requests",
-});
-
-// Middleware
-app.use((req, res, next) => {
-  httpRequestCounter.inc();
-  next();
-});
-
-// Metrics endpoint
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", client.register.contentType);
-  res.end(await client.register.metrics());
-});
 
 // Initialize Socket.io
 initSocket(httpServer);
