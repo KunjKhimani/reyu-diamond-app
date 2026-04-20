@@ -7,7 +7,7 @@ echo "🚀 Starting Deployment..."
 
 BRANCH=${BRANCH:-development}
 DOCKER_IMAGE=${DOCKER_IMAGE}
-APP_DIR=${APP_DIR:-/var/www/reyu-code}
+APP_DIR=${APP_DIR:-/root/reyu-diamond-app}
 COMPOSE_FILE=${COMPOSE_FILE:-server/docker-compose.prod.yml}
 
 echo "📁 App Dir: $APP_DIR"
