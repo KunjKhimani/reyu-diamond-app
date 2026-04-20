@@ -15,12 +15,11 @@ services:
     restart: always
 
   reyu_server:
-    image: ${DOCKER_IMAGE}   # 🔥 dynamic
-    # Env variables only, no volume mapping
+    image: ${DOCKER_IMAGE}
     env_file:
-      - ./src/.env
+      - ./server/src/.env   # ✅ FIXED
     ports: 
-      - "5000:3000"
+      - "5000:3000"         # ✅ FIXED
     depends_on:
       mongo:
         condition: service_healthy
