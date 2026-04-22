@@ -25,13 +25,16 @@ const handleNotificationEvent: EachMessageHandler = async ({ topic, partition, m
         ...(excludeUserId ? { _id: { $ne: excludeUserId } } : {}),
       }).select("_id fcmToken");
 
-      console.log(`Processing notifications for ${users.length} users...`);
+      console.log(`Processing notifications for ${users.length} users in batches...`);
+
+      const notificationDocs = [];
+      const fcmTokens: string[] = [];
 
       for (const user of users) {
         const userId = user._id.toString();
         
-        // Save to DB
-        await Notification.create({
+        // Prepare DB Doc
+        notificationDocs.push({
           recipient: userId,
           title,
           body,
@@ -39,18 +42,55 @@ const handleNotificationEvent: EachMessageHandler = async ({ topic, partition, m
           type: data.type || "GENERAL",
         });
 
-        // Send FCM if token exists
         if (user.fcmToken) {
+          fcmTokens.push(user.fcmToken);
+        }
+      }
+
+      // 1. Batch Insert Notifications into DB
+      if (notificationDocs.length > 0) {
+        await Notification.insertMany(notificationDocs, { ordered: false });
+        console.log(`Saved ${notificationDocs.length} notifications to database.`);
+      }
+
+      // 2. Multicast FCM (Max 500 tokens per call)
+      if (fcmTokens.length > 0) {
+        const chunkSize = 500;
+        for (let i = 0; i < fcmTokens.length; i += chunkSize) {
+          const chunk = fcmTokens.slice(i, i + chunkSize);
           try {
-            await fcm.send({ token: user.fcmToken, notification: { title, body }, data });
-          } catch (err: any) {
-             if (err.code === "messaging/registration-token-not-registered") {
-                await User.updateOne({ _id: userId }, { $unset: { fcmToken: "" } });
-             }
+            const response = await fcm.sendEachForMulticast({
+              tokens: chunk,
+              notification: { title, body },
+              data
+            });
+            
+            // Handle stale tokens
+            if (response.failureCount > 0) {
+              const tokensToRemove: string[] = [];
+              response.responses.forEach((resp, idx) => {
+                if (!resp.success && resp.error) {
+                  const err = resp.error as any;
+                  if (err.code === "messaging/registration-token-not-registered") {
+                    tokensToRemove.push(chunk[idx]!);
+                  }
+                }
+              });
+              
+              if (tokensToRemove.length > 0) {
+                await User.updateMany(
+                  { fcmToken: { $in: tokensToRemove } },
+                  { $unset: { fcmToken: "" } }
+                );
+              }
+            }
+          } catch (fcmErr) {
+            console.error("Batch FCM error:", fcmErr);
           }
         }
       }
-      console.log(`Finished processing notifications for auction event.`);
+
+      console.log(`Finished processing all notifications.`);
     } catch (error) {
       console.error("Error in notification consumer:", error);
     }
@@ -58,5 +98,6 @@ const handleNotificationEvent: EachMessageHandler = async ({ topic, partition, m
 };
 
 export const initNotificationConsumer = async () => {
+  // Subscribe with concurrency for horizontal scaling (if multiple server instances are running)
   await kafkaService.subscribe("notification-events", handleNotificationEvent, 3);
 };
